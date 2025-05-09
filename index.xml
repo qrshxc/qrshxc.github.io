@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>九思的博客</title><link>https://qrshxc.github.io/algolia.json</link><description>Recent content on 九思的博客</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Wed, 07 May 2025 17:41:58 +0800</lastBuildDate><atom:link href="https://qrshxc.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>C语言——数据结构笔试题</title><link>https://qrshxc.github.io/post/test/</link><pubDate>Wed, 07 May 2025 17:41:58 +0800</pubDate><guid>https://qrshxc.github.io/post/test/</guid><description>&lt;p>&lt;img src="https://raw.githubusercontent.com/qrshxc/img/main/imgsimage-20250506231344924.png" alt="image-20250506231344924">&lt;/p>
-&lt;p>已知一个顺序表工，其中的元素递增有序排列，设计一个算法，插入一个元素x(x为int型)后保持该顺序表仍然递增有序排列(假设插入操作总能成功)。&lt;/p></description></item><item><title>C语言循环队列的实现与分析</title><link>https://qrshxc.github.io/post/circularqueue/</link><pubDate>Mon, 28 Apr 2025 17:41:58 +0800</pubDate><guid>https://qrshxc.github.io/post/circularqueue/</guid><description>&lt;hr>
+&lt;p>已知一个顺序表工，其中的元素递增有序排列，设计一个算法，插入一个元素x(x为int型)后保持该顺序表仍然递增有序排列(假设插入操作总能成功)。&lt;/p></description></item><item><title>C语言笔试题:利用两个栈s1和s2来模拟一个队列</title><link>https://qrshxc.github.io/post/stacktoqueue/</link><pubDate>Wed, 07 May 2025 17:41:58 +0800</pubDate><guid>https://qrshxc.github.io/post/stacktoqueue/</guid><description>&lt;p>请利用两个栈s1和s2来模拟一个队列，假设栈中元素为int 型，栈中元素最多为 maxSizc。入队:栈的3个运算定义如下。
+push(ST,x):元素x入 ST 栈。
+pop(ST,&amp;amp;x):ST栈顶元素出栈，赋给变量x。
+isEmpty(ST):判断 ST 栈是否为空。
+如何利用栈的运算来实现该队列的3个运算:enQueue(元素入队列)、deQueue(元素出队列)、isQueueEmpty(判断队列是否为空，空返回1，不空返回0)。&lt;/p></description></item><item><title>C语言循环队列的实现与分析</title><link>https://qrshxc.github.io/post/circularqueue/</link><pubDate>Mon, 28 Apr 2025 17:41:58 +0800</pubDate><guid>https://qrshxc.github.io/post/circularqueue/</guid><description>&lt;hr>
 &lt;h1 id="引言">
 &lt;a class="header-anchor" href="#%e5%bc%95%e8%a8%80">&lt;/a>
 引言
