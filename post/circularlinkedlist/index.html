@@ -1,0 +1,483 @@
+<!doctype html><html lang=zh-cn data-theme-mode=auto><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>C语言实现单向循环链表：创建、插入与删除操作 | 九思-qrshxc
+</title><meta name=description content="记录成长与学习的足迹"><script>window.siteConfig=JSON.parse('{"anchor_icon":null,"clipboard":{"copyright":{"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！","count":50,"enable":false},"fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","success":"复制成功(*^▽^*)"},"code_block":{"expand":true},"icon_font":"4552607_0khxww3tj3q9","outdate":{"daysago":180,"enable":false,"message":"本文最后更新于 {time}，请注意文中内容可能已经发生变化。"}}')</script><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=preload as=style href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap" media=print onload='this.media="all"'><link rel=preload href=//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=stylesheet href=/css/loader.min.2ad0e9bbffb534e893c0ecefc44787a277cf851387e8ad9dccfbc3a5f0886dbe.css><meta property="og:type" content="website"><meta property="og:title" content="C语言实现单向循环链表：创建、插入与删除操作 | 九思-qrshxc"><meta property="og:description" content="记录成长与学习的足迹"><meta property="og:url" content="https://www.grshuc.bg/post/circularlinkedlist/"><meta property="og:site_name" content="九思的博客"><meta property="og:image" content="/"><meta property="article:author" content="九思-qrshxc"><meta property="article:published_time" content="2025-04-19T17:41:58+08:00"><meta property="article:modified_time" content="2025-04-19T17:41:58+08:00"><meta name=twitter:card content="summary"><meta name=twitter:image content="/"><link rel="shortcut icon" href=/favicon.ico><link rel=stylesheet href=/css/main.min.3c789789250ac1248a6dec88381e683d0e19f8b30032229c7203c467f15894ec.css><link rel=preload as=style href=https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css onload='this.onload=null,this.rel="stylesheet"'><link rel=preload as=style href=https://npm.webcache.cn/katex@0.16.9/dist/katex.min.css onload='this.onload=null,this.rel="stylesheet"'><script src=https://npm.webcache.cn/pace-js@1.2.4/pace.min.js integrity=sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8 crossorigin=anonymous></script><link rel=stylesheet href=https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css></head><body><div id=loader><div class="loading-left-bg loading-bg"></div><div class="loading-right-bg loading-bg"></div><div class=spinner-box><div class=loading-taichi><svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" shape-rendering="geometricPrecision"><path d="M303.5 432a80 80 0 01-12 160 80 80 0 0112-160z" fill="#ff5252"/><path d="M512 65a447 447 0 010 894V929a417 417 0 000-834 417 417 0 000 834v30a447 447 0 010-894zm0 30A417 417 0 01929 512 208.5 208.5.0 01720.5 720.5V592a80 80 0 000-160 80 80 0 000 160V720.5A208.5 208.5.0 01512 512 208.5 208.5.0 00303.5 303.5 208.5 208.5.0 0095 512 417 417 0 01512 95z" fill="#ff5252"/></svg></div><div class=loading-word>正在努力打败拖延兽...</div></div></div></div><script>var time=null,startLoading=()=>{time=Date.now(),document.getElementById("loader").classList.remove("loading")},endLoading=()=>{time?Date.now()-time>500?(time=null,document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading")):(setTimeout(endLoading,500-(Date.now()-time)),time=null):(document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading"))};window.addEventListener("DOMContentLoaded",endLoading),document.getElementById("loader").addEventListener("click",endLoading)</script><div id=copy-tooltip style="pointer-events:none;opacity:0;transition:all .2s ease;position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,.5);padding:10px 15px;border-radius:10px"></div><div id=container><div id=wrap><div id=header-nav><nav id=main-nav><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/>首页</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/archives>归档</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/about>关于</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/friend>友链</a>
+</span><a id=main-nav-toggle class=nav-icon></a></nav><nav id=sub-nav></nav></div><header id=header><picture></picture><img fetchpriority=high src=/images/banner.webp alt=C语言实现单向循环链表：创建、插入与删除操作><div id=header-outer><div id=header-title><a href=/ id=logo><h1 data-aos=slide-up>C语言实现单向循环链表：创建、插入与删除操作</h1></a><h2 id=subtitle-wrap data-aos=slide-down></h2></div></div></header><div id=content class=sidebar-right><aside id=sidebar><div class="sidebar-wrapper wrap-sticky"><div class=sidebar-wrap data-aos=fade-up><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#头部插入>头部插入</a></li><li><a href=#尾部插入>尾部插入</a></li><li><a href=#指定位置插入>指定位置插入</a></li></ul><ul><li><ul><li></li></ul></li></ul><ul><li><a href=#结果>结果</a></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=九思-qrshxc class=lazyload><div class=sidebar-author-name>九思-qrshxc</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>16</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div><div class=sidebar-btn-wrapper style=position:static><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></div></div><div class=sidebar-widget></div></aside><section id=main><article class="h-entry article" itemprop=blogPost itemscope itemtype=https://schema.org/BlogPosting><div class=article-inner data-aos=fade-up><div class=article-meta><div class=article-date><span class=article-date-link data-aos=zoom-in><time datetime="2025-04-19 17:41:58 +0800 +0800" itemprop=datePublished>2025-04-19</time>
+<time style=display:none id=post-update-time>2025-04-19</time></span></div><div class=article-category></div></div><div class=hr-line></div><div class="e-content article-entry" itemprop=articleBody><p>在本篇博客中，我们将深入探讨如何用 C 语言实现一个<strong>单向循环链表</strong>。我们将逐步实现循环链表的基本操作，包括节点的增、删、改、查和遍历等，并解释相关的概念与代码实现。单向循环链表与普通链表的区别在于最后一个节点的 <code>next</code> 指针指向的是头节点，从而形成了一个闭环。</p><h1 id=什么是循环链表><a class=header-anchor href=#%e4%bb%80%e4%b9%88%e6%98%af%e5%be%aa%e7%8e%af%e9%93%be%e8%a1%a8></a>什么是循环链表？</h1><p>链表是一种常见的数据结构，通常包含多个节点，每个节点包含一个数据元素和一个指向下一个节点的指针。而<strong>循环链表</strong>的特点是：</p><ul><li><strong>单向循环链表</strong>中，最后一个节点的 <code>next</code> 指针不指向 <code>NULL</code>，而是指向头节点。也就是说，遍历链表时，最后会回到头节点，形成一个闭环。</li><li>循环链表非常适用于需要重复遍历的数据结构，比如缓冲区、任务调度等。</li></ul><h1 id=设计单向循环链表><a class=header-anchor href=#%e8%ae%be%e8%ae%a1%e5%8d%95%e5%90%91%e5%be%aa%e7%8e%af%e9%93%be%e8%a1%a8></a>设计单向循环链表</h1><p>为了实现单向循环链表，我们首先需要定义一个链表节点的结构体（<code>CircLList_t</code>）。该结构体包含两个成员：</p><ul><li><code>data</code>：存储节点的数据。</li><li><code>next</code>：指向下一个节点的指针。</li></ul><p>接下来，我们将实现几个基本操作：</p><ol><li><strong>链表创建</strong>：创建一个空的单向循环链表。</li><li><strong>节点插入</strong>：在链表的头部、尾部或指定位置插入节点。</li><li><strong>节点删除</strong>：删除链表中的指定节点（头节点、尾节点或指定值节点）。</li><li><strong>链表遍历</strong>：遍历并打印链表中的所有节点。</li></ol><p><img src="https://github.com/qrshxc/img/blob/main/imgs%E5%8D%95%E9%A1%B9%E5%BE%AA%E7%8E%AF%E9%93%BE%E8%A1%A8%E5%9B%BE.jpg?raw=true" alt=imgs单项循环链表图.jpg></p><p>版本：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @file name : CircularLinkedList.c
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     : 实现单向循环链表的增删改查
+</span></span></span><span class=line><span class=cl><span class=cm> * @author    : qrshxc@163.com
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      : 2025/04/18
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   : 1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      : 
+</span></span></span><span class=line><span class=cl><span class=cm> * CopyRight (c)  2025-2026   qrshxc@163.com   All Right Reseverd
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span></code></pre></div><h1 id=1-创建单向循环链表><a class=header-anchor href=#1-%e5%88%9b%e5%bb%ba%e5%8d%95%e5%90%91%e5%be%aa%e7%8e%af%e9%93%be%e8%a1%a8></a>1. 创建单向循环链表</h1><p>首先，我们需要实现一个函数来创建一个空的单向循环链表，并返回链表的头结点。头结点不存储实际数据，它的 <code>next</code> 指针指向自己，表示链表为空。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name       CircularLinkedList_Create
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     创建一个空单项循环链表，并对空链表进行初始化
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval head 头结点地址    
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/18
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=n>CircularLinkedList</span> <span class=o>*</span> <span class=nf>CircularLinkedList_Create</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//1.创建一个头结点并对头结点申请内存
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span> <span class=o>=</span> <span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=p>)</span><span class=nf>calloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=k>sizeof</span><span class=p>(</span><span class=n>CircularLinkedList</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nb>NULL</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>perror</span><span class=p>(</span><span class=s>&#34;Calloc memory for head is Failed&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>exit</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>//2.对头结点进行初始化，头结点是不存储数据域，指针域指向自身，体现“循环”思想
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>//3.把头结点的地址返回即可
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=n>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=2-创建新节点><a class=header-anchor href=#2-%e5%88%9b%e5%bb%ba%e6%96%b0%e8%8a%82%e7%82%b9></a>2. 创建新节点</h1><p>接下来，我们定义一个函数来创建一个新节点，并初始化其数据和指针域。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name       CircularLinkedList_NewNode
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     创建新节点，并进行初始化（数据域+指针域）
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     data 数据域
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval New 新结点地址    
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=n>CircularLinkedList</span> <span class=o>*</span> <span class=nf>CircularLinkedList_NewNode</span><span class=p>(</span><span class=n>DataType_t</span> <span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//1.创建一个新结点并对新结点申请内存
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>New</span> <span class=o>=</span> <span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=p>)</span><span class=nf>calloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=k>sizeof</span><span class=p>(</span><span class=n>CircularLinkedList</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nb>NULL</span> <span class=o>==</span> <span class=n>New</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>perror</span><span class=p>(</span><span class=s>&#34;Calloc memory for NewNode is Failed&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>NULL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>//2.对新结点的数据域和指针域进行初始化
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>New</span><span class=o>-&gt;</span><span class=n>data</span> <span class=o>=</span> <span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=nb>NULL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>New</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=3插入节点><a class=header-anchor href=#3%e6%8f%92%e5%85%a5%e8%8a%82%e7%82%b9></a>3.插入节点</h1><h2 id=头部插入><a class=header-anchor href=#%e5%a4%b4%e9%83%a8%e6%8f%92%e5%85%a5></a>头部插入</h2><p>我们可以实现一个头部插入操作，将新节点插入到链表的开头。</p><p><img src="https://github.com/qrshxc/img/blob/main/imgs%E5%A4%B4%E6%8F%92.jpg?raw=true" alt=imgs头插.jpg></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name       CircularLinkedList_headInsert
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     头部插入新节点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     head 头结点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     data 数据域
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 插入成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 插入失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_headInsert</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>,</span> <span class=n>DataType_t</span> <span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//创建新节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>New</span> <span class=o>=</span> <span class=nf>CircularLinkedList_NewNode</span><span class=p>(</span><span class=n>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>New</span> <span class=o>==</span> <span class=nb>NULL</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Can not insert NewNode!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//判断链表是否为空,如果为空，则直接插入
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span> <span class=c1>//自己指向自己
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>tail</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//备份当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//遍历链表，找到尾结点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>while</span> <span class=p>(</span><span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>!=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span> <span class=o>=</span> <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//直接后继节点为当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>// 新节点指向原首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span> <span class=c1>//头结点指向新节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span> <span class=c1>//尾结点指向头结点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h2 id=尾部插入><a class=header-anchor href=#%e5%b0%be%e9%83%a8%e6%8f%92%e5%85%a5></a>尾部插入</h2><p>尾部插入操作将新节点插入到链表的末尾。此时我们需要遍历链表找到尾节点，将尾节点的 <code>next</code> 指针指向新节点。</p><p><img src="https://github.com/qrshxc/img/blob/main/imgs%E5%B0%BE%E6%8F%92.jpg?raw=true" alt=imgs尾插.jpg></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name       CircularLinkedList_tailInsert
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     尾部插入新节点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     head 头结点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     data 数据域
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 插入成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 插入失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_tailInsert</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>,</span> <span class=n>DataType_t</span> <span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//创建新节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>New</span> <span class=o>=</span> <span class=nf>CircularLinkedList_NewNode</span><span class=p>(</span><span class=n>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>New</span> <span class=o>==</span> <span class=nb>NULL</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Can not insert NewNode!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//判断链表是否为空,如果为空，则直接插入
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span> <span class=c1>//自己指向自己
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>tail</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//备份当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//遍历链表，找到尾结点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>while</span> <span class=p>(</span><span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>!=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span> <span class=o>=</span> <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//直接后继节点为当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span> <span class=c1>//尾结点指向新节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//新节点指向首节点，维持循环
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h2 id=指定位置插入><a class=header-anchor href=#%e6%8c%87%e5%ae%9a%e4%bd%8d%e7%bd%ae%e6%8f%92%e5%85%a5></a>指定位置插入</h2><p>我们还可以根据指定的目标值（<code>destval</code>）来插入新节点。我们遍历链表，找到目标节点后，将新节点插入到目标节点之后。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/imgsimage-20250506190134365.png alt=image-20250506190134365></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name       CircularLinkedList_DestInsert
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     在指定节点后插入新节点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     head 头结点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     destval 目标值
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     data 数据域
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 插入成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 插入失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_DestInsert</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>,</span> <span class=n>DataType_t</span> <span class=n>destval</span><span class=p>,</span> <span class=n>DataType_t</span> <span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//创建新节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>New</span> <span class=o>=</span> <span class=nf>CircularLinkedList_NewNode</span><span class=p>(</span><span class=n>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>New</span> <span class=o>==</span> <span class=nb>NULL</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Can not insert NewNode!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//判断链表是否为空,如果为空，则直接插入
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span> <span class=c1>//自己指向自己
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>current</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//备份当前节点来找目标节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//遍历链表，找到目标值节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>do</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>current</span><span class=o>-&gt;</span><span class=n>data</span> <span class=o>==</span> <span class=n>destval</span><span class=p>)</span>  <span class=c1>// 找到目标节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>New</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>current</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=n>current</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>New</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>while</span> <span class=p>(</span><span class=n>current</span> <span class=o>!=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>);</span>  <span class=c1>// 循环直到回到起始节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//如果到这，说明没找到目标值
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Can not find destval!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=4-删除节点><a class=header-anchor href=#4-%e5%88%a0%e9%99%a4%e8%8a%82%e7%82%b9></a>4. 删除节点</h1><p>删除节点时，我们可以根据目标值或位置来删除相应的节点。我们提供头部删除、尾部删除和按值删除三种操作。</p><h4 id=头部删除><a class=header-anchor href=#%e5%a4%b4%e9%83%a8%e5%88%a0%e9%99%a4></a>头部删除</h4><p>头部删除操作删除链表的第一个节点。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/imgsimage-20250506190152883.png alt=image-20250506190152883></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      CircularLinkedList_headDel
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     删除头部节点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     head 头结点
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 删除成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 删除失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_headDel</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 空链表检查
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Invalid node!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>FirstNode</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//备份首节点方便释放
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//1.只有首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nf>free</span><span class=p>(</span><span class=n>FirstNode</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//2.多个节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>tail</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//备份当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//遍历循环找到尾结点，让尾结点指向新首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>while</span><span class=p>(</span><span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>!=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span> <span class=o>=</span> <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>FirstNode</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//跳过首节点指向第二个节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//尾结点指向新首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>free</span><span class=p>(</span><span class=n>FirstNode</span><span class=p>);</span> <span class=c1>//释放内存
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h4 id=尾部删除><a class=header-anchor href=#%e5%b0%be%e9%83%a8%e5%88%a0%e9%99%a4></a>尾部删除</h4><p>尾部删除操作删除链表的最后一个节点。</p><p><img src="https://github.com/qrshxc/img/blob/main/imgs%E5%B0%BE%E5%88%A0.jpg?raw=true" alt=imgs尾删.jpg></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      CircularLinkedList_tailDel
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     删除尾部节点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     head 头结点
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 删除成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 删除失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_tailDel</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 空链表检查
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Invalid node!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>tail</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//备份首节点方便释放
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>prev</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span> <span class=c1>//备份当前节点的直接前驱节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//1.只有首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nf>free</span><span class=p>(</span><span class=n>tail</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//2.多个节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//遍历循环找到尾结点，让尾结点指向新首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>while</span> <span class=p>(</span><span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>!=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>tail</span> <span class=o>=</span> <span class=n>tail</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>prev</span> <span class=o>=</span> <span class=n>prev</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>prev</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//尾结点直接前驱节点指向首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>free</span><span class=p>(</span><span class=n>tail</span><span class=p>);</span> <span class=c1>//释放尾结点内存
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h4 id=指定删除><a class=header-anchor href=#%e6%8c%87%e5%ae%9a%e5%88%a0%e9%99%a4></a>指定删除</h4><p>按值删除操作删除链表中第一个匹配目标值的节点。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/imgsimage-20250506190208191.png alt=image-20250506190208191></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name  CircularLinkedList_DestDel
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief 删除链表中第一个值为destval的节点
+</span></span></span><span class=line><span class=cl><span class=cm> * @param head 链表头指针
+</span></span></span><span class=line><span class=cl><span class=cm> * @param destval 要删除的目标值
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 删除成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 删除失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_DestDel</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>,</span> <span class=n>DataType_t</span> <span class=n>destval</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 空链表检查
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Invalid node!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>current</span> <span class=o>=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>prev</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span> <span class=c1>//当前节点的直接前驱
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//1.只有首节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>current</span><span class=o>-&gt;</span><span class=n>data</span> <span class=o>==</span> <span class=n>destval</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span> <span class=c1>// 删除唯一节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nf>free</span><span class=p>(</span><span class=n>current</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Not find destval!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//2.多个节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//遍历循环找到目标值节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>current</span><span class=o>-&gt;</span><span class=n>data</span> <span class=o>==</span> <span class=n>destval</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>prev</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>=</span> <span class=n>current</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span> <span class=c1>//跳过当前节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>            <span class=nf>free</span><span class=p>(</span><span class=n>current</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=n>prev</span> <span class=o>=</span> <span class=n>current</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>current</span> <span class=o>=</span> <span class=n>current</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>while</span> <span class=p>(</span><span class=n>current</span> <span class=o>!=</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>);</span> <span class=c1>//循环直到回到起始节点
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Not find destval</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=5-打印链表><a class=header-anchor href=#5-%e6%89%93%e5%8d%b0%e9%93%be%e8%a1%a8></a>5. 打印链表</h1><p>我们可以通过遍历链表并打印每个节点的数据来实现链表的打印功能。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name       CircularLinkedList_Print
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     遍历并打印链表
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     head 头结点
+</span></span></span><span class=line><span class=cl><span class=cm> * @return
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval true 打印成功
+</span></span></span><span class=line><span class=cl><span class=cm> *      @retval false 打印失败
+</span></span></span><span class=line><span class=cl><span class=cm> * @date      2025/04/19
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>Phead</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>//判断当前链表是否为空，为空则直接退出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Circular LinkedList is empty!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>//从首结点开始遍历
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>while</span> <span class=p>(</span><span class=n>Phead</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>//把头结点的直接后继作为新的头结点
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=n>Phead</span> <span class=o>=</span> <span class=n>Phead</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>//输出头结点的直接后继的数据域
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;data = %d</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>Phead</span><span class=o>-&gt;</span><span class=n>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>//判断是否到达尾结点，尾结点的next指针是指向首结点的地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>if</span> <span class=p>(</span><span class=n>Phead</span><span class=o>-&gt;</span><span class=n>next</span> <span class=o>==</span> <span class=n>head</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=6测试及结果><a class=header-anchor href=#6%e6%b5%8b%e8%af%95%e5%8f%8a%e7%bb%93%e6%9e%9c></a>6.测试及结果</h1><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1. 创建空循环链表
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>CircularLinkedList</span> <span class=o>*</span><span class=n>list</span> <span class=o>=</span> <span class=nf>CircularLinkedList_Create</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 2. 头部插入测试
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>CircularLinkedList_headInsert</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=mi>3</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_headInsert</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=mi>2</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_headInsert</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Head Insert Test:</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>list</span><span class=p>);</span> <span class=c1>// 输出: 1 -&gt; 2 -&gt; 3 -&gt; (head)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;------------------------</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3. 尾部插入测试
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>CircularLinkedList_tailInsert</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=mi>4</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Tail Insert Test:</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>list</span><span class=p>);</span> <span class=c1>// 输出: 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; (head)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;------------------------</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 4. 指定位置插入测试
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>CircularLinkedList_DestInsert</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>5</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Destination Insert Test:</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>list</span><span class=p>);</span> <span class=c1>// 输出: 1 -&gt; 2 -&gt; 5 -&gt; 3 -&gt; 4 -&gt; (head)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;------------------------</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 5. 头部删除测试
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>CircularLinkedList_headDel</span><span class=p>(</span><span class=n>list</span><span class=p>);</span>   
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Head Delete Test:</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>list</span><span class=p>);</span> <span class=c1>// 输出: 2 -&gt; 5 -&gt; 3 -&gt; 4 -&gt; (head)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;------------------------</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 6. 尾部删除测试
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>CircularLinkedList_tailDel</span><span class=p>(</span><span class=n>list</span><span class=p>);</span>   
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Tail Delete Test:</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>list</span><span class=p>);</span> <span class=c1>// 输出: 2 -&gt; 5 -&gt; 3 -&gt; (head)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;------------------------</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 7. 指定值删除测试
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>CircularLinkedList_DestDel</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=mi>5</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Destination Delete Test:</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>CircularLinkedList_Print</span><span class=p>(</span><span class=n>list</span><span class=p>);</span> <span class=c1>// 输出: 2 -&gt; 3 -&gt; (head)
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h2 id=结果><a class=header-anchor href=#%e7%bb%93%e6%9e%9c></a>结果</h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=n>Head</span> <span class=n>Insert</span> <span class=nl>Test</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=o>------------------------</span>
+</span></span><span class=line><span class=cl><span class=n>Tail</span> <span class=n>Insert</span> <span class=nl>Test</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>4</span>
+</span></span><span class=line><span class=cl><span class=o>------------------------</span>
+</span></span><span class=line><span class=cl><span class=n>Destination</span> <span class=n>Insert</span> <span class=nl>Test</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>5</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>4</span>
+</span></span><span class=line><span class=cl><span class=o>------------------------</span>
+</span></span><span class=line><span class=cl><span class=n>Head</span> <span class=n>Delete</span> <span class=nl>Test</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>5</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>4</span>
+</span></span><span class=line><span class=cl><span class=o>------------------------</span>
+</span></span><span class=line><span class=cl><span class=n>Tail</span> <span class=n>Delete</span> <span class=nl>Test</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>5</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>3</span>
+</span></span><span class=line><span class=cl><span class=o>------------------------</span>
+</span></span><span class=line><span class=cl><span class=n>Destination</span> <span class=n>Delete</span> <span class=nl>Test</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>2</span>
+</span></span><span class=line><span class=cl><span class=n>data</span> <span class=o>=</span> <span class=mi>3</span>
+</span></span></code></pre></div><p>在这篇博客中，我们实现了一个基础的单向循环链表，并详细讲解了如何实现循环链表的增、删、改、查等操作。循环链表具有常见链表的优点，并且通过循环连接使得链表更加灵活，适用于各种需要重复遍历的数据结构。</p><p>望这篇博客能帮助你理解并实现单向循环链表，提升你对链表数据结构的掌握。</p></div><footer class=article-footer><ul class=article-tag-list itemprop=keywords></ul></footer></div><nav id=article-nav data-aos=fade-up><div class="article-nav-link-wrap article-nav-link-left"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt="用 C 语言实现单向链表" class=lazyload>
+<a href=https://www.grshuc.bg/post/linkedlist/></a><div class=article-nav-caption>前一篇</div><h3 class=article-nav-title>用 C 语言实现单向链表</h3></div><div class="article-nav-link-wrap article-nav-link-right"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt=C语言实现双向链表：创建、插入与删除操作 class=lazyload>
+<a href=https://www.grshuc.bg/post/doublelinkedlist/></a><div class=article-nav-caption>后一篇</div><h3 class=article-nav-title>C语言实现双向链表：创建、插入与删除操作</h3></div></nav></article></section></div><footer id=footer><div style=width:100%;overflow:hidden><div class=footer-line></div></div><div id=footer-info><div><span class=icon-copyright></span>
+2020 -
+2025
+<span class="footer-info-sep rotate"></span>
+九思-qrshxc</div><div>基于&nbsp;<a href=https://gohugo.io/ target=_blank>Hugo</a>&nbsp; Theme.<a href=https://github.com/D-Sketon/hugo-theme-reimu target=_blank>Reimu</a></div><div><span class=icon-brush>&nbsp;
+29.8k
+</span>&nbsp;|&nbsp;
+<span class=icon-coffee>&nbsp;
+01:08</span></div><div class=footer-beian><a target=_blank rel=noopener href=https://beian.miit.gov.cn>赣ICP备2025054780号-1</a></div><div><span class=icon-eye></span>
+<span id=busuanzi_container_site_pv>总访问量&nbsp;<span id=busuanzi_value_site_pv></span></span>
+&nbsp;|&nbsp;
+<span class=icon-user></span>
+<span id=busuanzi_container_site_uv>总访客量&nbsp;<span id=busuanzi_value_site_uv></span></span></div></div></footer><div class=sidebar-top><div class="sidebar-top-taichi rotate"></div><div class=arrow-up></div></div><div id=mask class=hide></div></div><nav id=mobile-nav><div class=sidebar-wrap><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#头部插入>头部插入</a></li><li><a href=#尾部插入>尾部插入</a></li><li><a href=#指定位置插入>指定位置插入</a></li></ul><ul><li><ul><li></li></ul></li></ul><ul><li><a href=#结果>结果</a></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=九思-qrshxc class=lazyload><div class=sidebar-author-name>九思-qrshxc</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>16</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div></div><div class=sidebar-btn-wrapper><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></nav></div><script src=https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js integrity=sha384-3gT/vsepWkfz/ff7PpWNUeMzeWoH3cDhm/A8jM7ouoAK0/fP/9bcHHR5kHq2nf+e crossorigin=anonymous></script><script src=https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js integrity=sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q crossorigin=anonymous></script><script src=/js/main.js integrity crossorigin=anonymous></script><script src=/js/aos.js integrity crossorigin=anonymous></script><script>var aosInit=()=>{AOS.init({duration:1e3,easing:"ease",once:!0,offset:50})};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",aosInit):aosInit()</script><script src=/js/pjax_main.js integrity crossorigin=anonymous data-pjax></script><script src=https://npm.webcache.cn/mouse-firework@0.1.0/dist/index.umd.js integrity=sha384-KM6i7tu43nYd6e0beIljxHMC5tZc58XBDu7pPA58w50h18Jsx7gLdimfS09RXlKv crossorigin=anonymous></script><script>if(window.firework){const e=JSON.parse('{"excludeelements":["a","button"],"particles":[{"colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"duration":[1200,1800],"easing":"easeOutExpo","move":["emit"],"number":20,"shape":"circle","shapeOptions":{"alpha":[0.3,0.5],"radius":[16,32]}},{"colors":["#ff0000"],"duration":[1200,1800],"easing":"easeOutExpo","move":["diffuse"],"number":1,"shape":"circle","shapeOptions":{"alpha":[0.2,0.5],"lineWidth":6,"radius":20}}]}');e.excludeElements=e.excludeelements,delete e.excludeelements,window.firework(e)}</script><div id=lazy-script><div><script data-pjax>window.REIMU_POST={author:"九思-qrshxc",title:"C语言实现单向循环链表：创建、插入与删除操作",url:"https://www.grshuc.bg/post/circularlinkedlist/",description:`在本篇博客中，我们将深入探讨如何用 C 语言实现一个单向循环链表。我们将逐步实现循环链表的基本操作，包括节点的增、删、改、查和遍历等，并解释相关的概念与代码实现。单向循环链表与普通链表的区别在于最后一个节点的 next 指针指向的是头节点，从而形成了一个闭环。
+`,cover:"https://www.grshuc.bg/images/banner.webp"}</script><script src=/js/insert_highlight.js integrity crossorigin=anonymous data-pjax></script><script type=module data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;
+
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script></div></div><script src=https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js async integrity=sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S crossorigin=anonymous></script><script>"serviceWorker"in navigator&&navigator.serviceWorker.getRegistrations().then(e=>{for(let t of e)t.unregister()})</script><script>const reimuCopyright=String.raw`
+   ______     ______     __     __    __     __  __    
+  /\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+  \ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+   \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+    \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                    
+  `;console.log(String.raw`%c ${reimuCopyright}`,"color: #ff5252;"),console.log("%c Theme.Reimu %c https://github.com/D-Sketon/hugo-theme-reimu ","color: white; background: #ff5252; padding:5px 0;","padding:4px;border:1px solid #ff5252;")</script></body></html>
