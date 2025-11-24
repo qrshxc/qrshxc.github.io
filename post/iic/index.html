@@ -1,0 +1,1295 @@
+<!doctype html><html lang=zh-cn data-theme-mode=auto><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>IIC总线通信与AT24C02存储芯片及OLED屏应用详解 | 黄小冲</title><meta name=description content="记录成长与学习的足迹"><script>window.siteConfig=JSON.parse('{"anchor_icon":null,"clipboard":{"copyright":{"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！","count":50,"enable":false},"fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","success":"复制成功(*^▽^*)"},"code_block":{"expand":true},"icon_font":"4552607_0khxww3tj3q9","outdate":{"daysago":180,"enable":false,"message":"本文最后更新于 {time}，请注意文中内容可能已经发生变化。"}}')</script><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=preload as=style href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap" media=print onload='this.media="all"'><link rel=preload href=//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=stylesheet href=/css/loader.min.2ad0e9bbffb534e893c0ecefc44787a277cf851387e8ad9dccfbc3a5f0886dbe.css><meta property="og:type" content="website"><meta property="og:title" content="IIC总线通信与AT24C02存储芯片及OLED屏应用详解 | 黄小冲"><meta property="og:description" content="记录成长与学习的足迹"><meta property="og:url" content="https://qrshxc.github.io/post/iic/"><meta property="og:site_name" content="九思的博客"><meta property="og:image" content="/"><meta property="article:author" content="黄小冲"><meta property="article:published_time" content="2025-08-05T17:41:58+08:00"><meta property="article:modified_time" content="2025-08-05T17:41:58+08:00"><meta name=twitter:card content="summary"><meta name=twitter:image content="/"><link rel="shortcut icon" href=/favicon.ico><link rel=stylesheet href=/css/main.min.63684398a9584d95e2411a922ec8187281bbab44ffd348e26a806cae3370a598.css><link rel=preload as=style href=https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css onload='this.onload=null,this.rel="stylesheet"'><link rel=preload as=style href=https://npm.webcache.cn/katex@0.16.9/dist/katex.min.css onload='this.onload=null,this.rel="stylesheet"'><script src=https://npm.webcache.cn/pace-js@1.2.4/pace.min.js integrity=sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8 crossorigin=anonymous></script><link rel=stylesheet href=https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css></head><body><div id=loader><div class="loading-left-bg loading-bg"></div><div class="loading-right-bg loading-bg"></div><div class=spinner-box><div class=loading-taichi><svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" shape-rendering="geometricPrecision"><path d="M303.5 432a80 80 0 01-12 160 80 80 0 0112-160z" fill="#ff5252"/><path d="M512 65a447 447 0 010 894V929a417 417 0 000-834 417 417 0 000 834v30a447 447 0 010-894zm0 30A417 417 0 01929 512 208.5 208.5.0 01720.5 720.5V592a80 80 0 000-160 80 80 0 000 160V720.5A208.5 208.5.0 01512 512 208.5 208.5.0 00303.5 303.5 208.5 208.5.0 0095 512 417 417 0 01512 95z" fill="#ff5252"/></svg></div><div class=loading-word>正在努力打败拖延兽...</div></div></div></div><script>var time=null,startLoading=()=>{time=Date.now(),document.getElementById("loader").classList.remove("loading")},endLoading=()=>{time?Date.now()-time>500?(time=null,document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading")):(setTimeout(endLoading,500-(Date.now()-time)),time=null):(document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading"))};window.addEventListener("DOMContentLoaded",endLoading),document.getElementById("loader").addEventListener("click",endLoading)</script><div id=copy-tooltip style="pointer-events:none;opacity:0;transition:all .2s ease;position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,.5);padding:10px 15px;border-radius:10px"></div><div id=container><div id=wrap><div id=header-nav><nav id=main-nav><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/>首页</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/archives>归档</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/about>关于</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/friend>友链</a>
+</span><a id=main-nav-toggle class=nav-icon></a></nav><nav id=sub-nav></nav></div><header id=header><picture></picture><img fetchpriority=high src=/images/banner.webp alt=IIC总线通信与AT24C02存储芯片及OLED屏应用详解><div id=header-outer><div id=header-title><a href=/ id=logo><h1 data-aos=slide-up>IIC总线通信与AT24C02存储芯片及OLED屏应用详解</h1></a><h2 id=subtitle-wrap data-aos=slide-down></h2></div></div></header><div id=content class=sidebar-right><aside id=sidebar><div class="sidebar-wrapper wrap-sticky"><div class=sidebar-wrap data-aos=fade-up><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#1-基本概念>1. 基本概念</a></li><li><a href=#2引脚说明>2.引脚说明</a></li><li><a href=#3通信速率>3.通信速率</a></li><li><a href=#4通信过程>4.通信过程</a><ul><li><a href=#1-空闲状态>(1) 空闲状态</a></li><li><a href=#2-开始信号>(2) 开始信号</a></li><li><a href=#3-数据传输>(3) 数据传输</a></li><li><a href=#4-应答信号>(4) 应答信号</a></li><li><a href=#5-停止信号>(5) 停止信号</a></li></ul></li><li><a href=#5器件地址>5.器件地址</a></li><li><a href=#6程序设计>6.程序设计</a><ul><li></li></ul></li></ul><ul><li><a href=#1基本概念>1.基本概念</a></li><li><a href=#2驱动芯片>2.驱动芯片</a></li><li><a href=#3器件地址>3.器件地址</a></li><li><a href=#4程序设计>4.程序设计</a><ul><li></li></ul></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div><div class=sidebar-btn-wrapper style=position:static><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></div></div><div class=sidebar-widget></div></aside><section id=main><article class="h-entry article" itemprop=blogPost itemscope itemtype=https://schema.org/BlogPosting><div class=article-inner data-aos=fade-up><div class=article-meta><div class=article-date><span class=article-date-link data-aos=zoom-in><time datetime="2025-08-05 17:41:58 +0800 +0800" itemprop=datePublished>2025-08-05</time>
+<time style=display:none id=post-update-time>2025-08-05</time></span></div><div class=article-category></div></div><div class=hr-line></div><div class="e-content article-entry" itemprop=articleBody><h1 id=一内部集成电路概述><a class=header-anchor href=#%e4%b8%80%e5%86%85%e9%83%a8%e9%9b%86%e6%88%90%e7%94%b5%e8%b7%af%e6%a6%82%e8%bf%b0></a>一、内部集成电路概述</h1><h2 id=1-基本概念><a class=header-anchor href=#1-%e5%9f%ba%e6%9c%ac%e6%a6%82%e5%bf%b5></a>1. 基本概念</h2><p>内部集成电路（Inter Integrated Circuit）的简称叫做IIC 或者I2C，是一种简单的、半双工同步通信的串行通信接口，IIC 总线是上世纪80 年代（1982 年）由飞利浦公司设计出来，当时的目的是为了给MCU 和外围芯片提供更简单的交互方式。</p><h2 id=2引脚说明><a class=header-anchor href=#2%e5%bc%95%e8%84%9a%e8%af%b4%e6%98%8e></a>2.引脚说明</h2><p>IIC 总线只需要两根引脚就可以实现通信，一根是数据线（SDA Serial Data），另一根是时钟线（SCL Serial Clock），所有通过IIC 接口通信的外围器件都挂载在IIC 总线上，通过这种机制就可以实现多机通信。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220401877.png alt=image-20251123220401877></p><p>可以看到，外围器件的时钟线和数据线都是挂载在IIC 总线（由主控芯片提供），并且在空闲状态下所有器件的时钟线（SCL）和数据线（SDA）都被总线的上拉电阻拉高，这样就可以把SDA 引脚和SCL 引脚设置为开漏模式即可，好处是防止短路。</p><p>思考：如果IIC 总线上挂载了多个外围器件，如何与某一个器件进行单独通信？ 答：器件地址</p><h2 id=3通信速率><a class=header-anchor href=#3%e9%80%9a%e4%bf%a1%e9%80%9f%e7%8e%87></a>3.通信速率</h2><p>可以看到IIC 总线支持不同的通信速率，但是一般常用的标准速率100KHZ，但是有的外围器件可以支持高达400KHZ 的通信速率，而由于IIC 总线是半双工通信，所以同一时刻只能接收或者发送，也就是说IIC 总线一般是为了控制，不适合作为大量数据传输的接口。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220544746.png alt=image-20251123220544746></p><h2 id=4通信过程><a class=header-anchor href=#4%e9%80%9a%e4%bf%a1%e8%bf%87%e7%a8%8b></a>4.通信过程</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220613727.png alt=image-20251123220613727></p><h3 id=1-空闲状态><a class=header-anchor href=#1-%e7%a9%ba%e9%97%b2%e7%8a%b6%e6%80%81></a>(1) 空闲状态</h3><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220637719.png alt=image-20251123220637719></p><h3 id=2-开始信号><a class=header-anchor href=#2-%e5%bc%80%e5%a7%8b%e4%bf%a1%e5%8f%b7></a>(2) 开始信号</h3><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220714562.png alt=image-20251123220714562></p><h3 id=3-数据传输><a class=header-anchor href=#3-%e6%95%b0%e6%8d%ae%e4%bc%a0%e8%be%93></a>(3) 数据传输</h3><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220739355.png alt=image-20251123220739355></p><h3 id=4-应答信号><a class=header-anchor href=#4-%e5%ba%94%e7%ad%94%e4%bf%a1%e5%8f%b7></a>(4) 应答信号</h3><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220745745.png alt=image-20251123220745745></p><h3 id=5-停止信号><a class=header-anchor href=#5-%e5%81%9c%e6%ad%a2%e4%bf%a1%e5%8f%b7></a>(5) 停止信号</h3><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220812806.png alt=image-20251123220812806></p><h2 id=5器件地址><a class=header-anchor href=#5%e5%99%a8%e4%bb%b6%e5%9c%b0%e5%9d%80></a>5.器件地址</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123220856084.png alt></p><h2 id=6程序设计><a class=header-anchor href=#6%e7%a8%8b%e5%ba%8f%e8%ae%be%e8%ae%a1></a>6.程序设计</h2><h4 id=myiich><a class=header-anchor href=#myiich></a>myiic.h</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file   myiic.h 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   IIC驱动头文件
+</span></span></span><span class=line><span class=cl><span class=cm>            SCL--PB8
+</span></span></span><span class=line><span class=cl><span class=cm>            SDA--PB9
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#ifndef __MYIIC_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define __MYIIC_H
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stm32f4xx.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdbool.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1>// IIC引脚操作宏定义
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define SDA_SET(n)  ((n) ? GPIO_SetBits(GPIOB, GPIO_Pin_9) : GPIO_ResetBits(GPIOB, GPIO_Pin_9)) 
+</span></span></span><span class=line><span class=cl><span class=cp>#define SCL_SET(n)  ((n) ? GPIO_SetBits(GPIOB, GPIO_Pin_8) : GPIO_ResetBits(GPIOB, GPIO_Pin_8)) 
+</span></span></span><span class=line><span class=cl><span class=cp>#define SDA_READ    GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1>// IIC函数声明
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>void</span> <span class=nf>IIC_SCLConfig</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIOMode_TypeDef</span> <span class=n>GPIO_Mode</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Start</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Stop</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>Byte</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>IIC_IsSlaveACK</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=nf>IIC_ReadByte</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_MasterACK</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>ack</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span></code></pre></div><h4 id=myiicc><a class=header-anchor href=#myiicc></a>myiic.c</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file   myiic.c 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   IIC驱动源文件
+</span></span></span><span class=line><span class=cl><span class=cm>            SCL--PB8
+</span></span></span><span class=line><span class=cl><span class=cm>            SDA--PB9
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;myiic.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;delay.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_SCLConfig 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    SCL引脚配置
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SCLConfig</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 打开GPIOB端口时钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOB</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// SCL引脚配置(PB8)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span>   <span class=o>=</span> <span class=n>GPIO_Mode_OUT</span><span class=p>;</span>    <span class=c1>// 输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span>  <span class=o>=</span> <span class=n>GPIO_Speed_50MHz</span><span class=p>;</span> <span class=c1>// 输出速度50MHz
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span>  <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>    <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span>   <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>     <span class=c1>// 上拉电阻
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span>    <span class=o>=</span> <span class=n>GPIO_Pin_8</span><span class=p>;</span>       <span class=c1>// PB8引脚
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOB</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_SDAConfig 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    SDA引脚配置
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    GPIO_Mode: 引脚模式（输入或输出）
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIOMode_TypeDef</span> <span class=n>GPIO_Mode</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 打开GPIOB端口时钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOB</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// SDA引脚配置(PB9)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span>   <span class=o>=</span> <span class=n>GPIO_Mode</span><span class=p>;</span>        <span class=c1>// 输入或输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span>  <span class=o>=</span> <span class=n>GPIO_Speed_50MHz</span><span class=p>;</span> <span class=c1>// 输出速度50MHz
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span>  <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>    <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span>   <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>     <span class=c1>// 上拉电阻
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span>    <span class=o>=</span> <span class=n>GPIO_Pin_9</span><span class=p>;</span>       <span class=c1>// PB9引脚
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOB</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC总线初始化
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA和SCL为输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SCLConfig</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.确保SDA和SCL处于空闲状态（高电平）
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_Start 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC起始信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Start</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA引脚为输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.确保SDA和SCL处于空闲状态
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.在SCL为高电平时，SDA从高变低，产生起始信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.拉低SCL，准备数据传输
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_SendByte 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC发送一个字节
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Byte: 要发送的字节数据
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>Byte</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA引脚为输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.确保SCL为低电平，主机准备数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.循环发送8位数据，高位先出(MSB)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 4.根据字节的最高位设置SDA电平
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>if</span><span class=p>(</span><span class=n>Byte</span> <span class=o>&amp;</span> <span class=mh>0x80</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>  <span class=c1>// 最高位为1，SDA置高
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>else</span>
+</span></span><span class=line><span class=cl>            <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>  <span class=c1>// 最高位为0，SDA置低
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>        <span class=n>Byte</span> <span class=o>&lt;&lt;=</span> <span class=mi>1</span><span class=p>;</span>      <span class=c1>// 左移一位，准备发送下一位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// 5.拉高SCL，从机读取数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// 6.拉低SCL，主机准备下一个数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_IsSlaveACK 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    检测从机应答信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   bool: true-从机应答, false-从机未应答
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>IIC_IsSlaveACK</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>ack</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA引脚为输入模式，准备读取从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_IN</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.拉低SCL，从机准备应答位
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.拉高SCL，主机读取应答状态
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.读取SDA状态：1表示未应答，0表示已应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=n>SDA_READ</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>ack</span> <span class=o>=</span> <span class=nb>false</span><span class=p>;</span>  <span class=c1>// 未应答(NACK)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=n>ack</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span>   <span class=c1>// 已应答(ACK)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 5.拉低SCL，结束应答周期
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>ack</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_ReadByte 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC读取一个字节
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   uint8_t: 读取到的字节数据
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=nf>IIC_ReadByte</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>data</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA引脚为输入模式，准备读取数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_IN</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.拉低SCL，从机准备数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.循环读取8位数据，高位先出(MSB)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 4.拉高SCL，主机读取数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// 5.读取SDA状态并组合成字节
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=n>data</span> <span class=o>&lt;&lt;=</span> <span class=mi>1</span><span class=p>;</span>          <span class=c1>// 左移一位，为新的数据位腾出空间
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=n>data</span> <span class=o>|=</span> <span class=n>SDA_READ</span><span class=p>;</span>    <span class=c1>// 读取当前数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        
+</span></span><span class=line><span class=cl>        <span class=c1>// 6.拉低SCL，从机准备下一个数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 7.返回读取到的完整字节
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>return</span> <span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_MasterACK 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    主机发送应答信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    ack: 应答标志（1-非应答，0-应答）
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_MasterACK</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>ack</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA引脚为输出模式，准备发送应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.拉低SCL，主机准备应答位
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.根据ack参数设置SDA电平
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=n>ack</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>  <span class=c1>// 非应答(NACK)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>  <span class=c1>// 应答(ACK)
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.拉高SCL，从机读取应答位
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 5.拉低SCL，结束应答周期
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_Stop 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC停止信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Stop</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.设置SDA引脚为输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SDAConfig</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.确保SDA和SCL都为低电平
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.先拉高SCL
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.在SCL为高电平时，SDA从低变高，产生停止信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h4 id=at24c02h><a class=header-anchor href=#at24c02h></a>at24c02.h</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file   at24c02.h 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   AT24C02 EEPROM驱动头文件
+</span></span></span><span class=line><span class=cl><span class=cm>            容量: 2Kbit(256字节)
+</span></span></span><span class=line><span class=cl><span class=cm>            器件地址: 0xA0(写)/0xA1(读)
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#ifndef __AT24C02_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define __AT24C02_H
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;myiic.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdbool.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1>// AT24C02器件地址定义
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define AT24C02_WRITE_ADDR    0xA0    </span><span class=c1>// 写器件地址
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define AT24C02_READ_ADDR     0xA1    </span><span class=c1>// 读器件地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 函数声明
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>void</span> <span class=nf>AT24C02_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>AT24C02_ByteWrite</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>Addr</span><span class=p>,</span> <span class=kt>uint8_t</span> <span class=n>Byte</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=nf>AT24C02_CurrentAddressRead</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=nf>AT24C02_RandomAddressRead</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>DestAddr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span></code></pre></div><h4 id=at24c02c><a class=header-anchor href=#at24c02c></a>at24c02.c</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file   at24c02.c 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   AT24C02 EEPROM驱动源文件
+</span></span></span><span class=line><span class=cl><span class=cm>            容量: 2Kbit(256字节)
+</span></span></span><span class=line><span class=cl><span class=cm>            器件地址: 0xA0(写)/0xA1(读)
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;at24c02.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;delay.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function AT24C02_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    AT24C02初始化
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>AT24C02_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 初始化IIC总线
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function AT24C02_ByteWrite 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    AT24C02字节写入操作
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Addr: 存储地址(0x00-0xFF)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Byte: 要写入的字节数据
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   bool: true-写入成功, false-写入失败
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>AT24C02_ByteWrite</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>Addr</span><span class=p>,</span> <span class=kt>uint8_t</span> <span class=n>Byte</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.开始信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.发送器件地址(写模式)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>AT24C02_WRITE_ADDR</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>  <span class=c1>// 器件地址错误
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.发送存储地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>Addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 5.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>  <span class=c1>// 存储地址错误
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 6.发送数据字节
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>Byte</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 7.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>  <span class=c1>// 数据写入错误
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 8.停止信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 9.延时5ms，等待EEPROM内部写操作完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>delay_ms</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function AT24C02_CurrentAddressRead 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    AT24C02当前地址读取
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   uint8_t: 读取到的字节数据
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=nf>AT24C02_CurrentAddressRead</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>recv</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.开始信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.发送器件地址(读模式)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>AT24C02_READ_ADDR</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mh>0xFF</span><span class=p>;</span>  <span class=c1>// 读取失败，返回0xFF
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.读取字节数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>recv</span> <span class=o>=</span> <span class=nf>IIC_ReadByte</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 5.发送非应答信号(表示读取结束)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_MasterACK</span><span class=p>(</span><span class=mh>0x01</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 6.停止信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>recv</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function AT24C02_RandomAddressRead 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    AT24C02随机地址读取
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    DestAddr: 目标读取地址(0x00-0xFF)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   uint8_t: 读取到的字节数据
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=nf>AT24C02_RandomAddressRead</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>DestAddr</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>recv</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 1.开始信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 2.发送器件地址(写模式)，用于指定读取地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>AT24C02_WRITE_ADDR</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 3.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mh>0xFF</span><span class=p>;</span>  <span class=c1>// 器件地址错误
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 4.发送要读取的存储地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>DestAddr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 5.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mh>0xFF</span><span class=p>;</span>  <span class=c1>// 存储地址错误
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 6.重新开始信号(用于切换为读模式)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 7.发送器件地址(读模式)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>AT24C02_READ_ADDR</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 8.检测从机应答
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span><span class=p>(</span><span class=nf>IIC_IsSlaveACK</span><span class=p>()</span> <span class=o>==</span> <span class=nb>false</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=mh>0xFF</span><span class=p>;</span>  <span class=c1>// 读取模式切换失败
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 9.读取字节数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>recv</span> <span class=o>=</span> <span class=nf>IIC_ReadByte</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 10.发送非应答信号(表示读取结束)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_MasterACK</span><span class=p>(</span><span class=mh>0x01</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 11.停止信号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>recv</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=三oled屏的原理与应用><a class=header-anchor href=#%e4%b8%89oled%e5%b1%8f%e7%9a%84%e5%8e%9f%e7%90%86%e4%b8%8e%e5%ba%94%e7%94%a8></a>三、OLED屏的原理与应用</h1><h2 id=1基本概念><a class=header-anchor href=#1%e5%9f%ba%e6%9c%ac%e6%a6%82%e5%bf%b5></a>1.基本概念</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123224134299.png alt=image-20251123224134299></p><h2 id=2驱动芯片><a class=header-anchor href=#2%e9%a9%b1%e5%8a%a8%e8%8a%af%e7%89%87></a>2.驱动芯片</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123224210666.png alt=image-20251123224210666></p><h2 id=3器件地址><a class=header-anchor href=#3%e5%99%a8%e4%bb%b6%e5%9c%b0%e5%9d%80></a>3.器件地址</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251123224239113.png alt=image-20251123224239113></p><h2 id=4程序设计><a class=header-anchor href=#4%e7%a8%8b%e5%ba%8f%e8%ae%be%e8%ae%a1></a>4.程序设计</h2><h4 id=oledh><a class=header-anchor href=#oledh></a>oled.h</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file    oled.h 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   OLED显示驱动头文件
+</span></span></span><span class=line><span class=cl><span class=cm>            SCL--PG7
+</span></span></span><span class=line><span class=cl><span class=cm>            SDA--PG6
+</span></span></span><span class=line><span class=cl><span class=cm>            GND--接地
+</span></span></span><span class=line><span class=cl><span class=cm>            VCC--3.3V
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#ifndef __OLED_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define __OLED_H
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stdlib.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdbool.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1>// OLED显示参数定义
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define OLED_MODE     0           </span><span class=c1>// OLED工作模式
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define SIZE          8           </span><span class=c1>// 字体大小基准
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define XLevelL       0x00        </span><span class=c1>// 列地址低位
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define XLevelH       0x10        </span><span class=c1>// 列地址高位
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define Max_Column    128         </span><span class=c1>// 最大列数
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define Max_Row       64          </span><span class=c1>// 最大行数
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define Brightness    0xFF        </span><span class=c1>// 亮度设置
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define X_WIDTH       128         </span><span class=c1>// 屏幕宽度
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define Y_WIDTH       64          </span><span class=c1>// 屏幕高度
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// OLED引脚定义
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define SDA_SET(x)    ((x) ? GPIO_SetBits(GPIOG, GPIO_Pin_6) : GPIO_ResetBits(GPIOG, GPIO_Pin_6))
+</span></span></span><span class=line><span class=cl><span class=cp>#define SCL_SET(x)    ((x) ? GPIO_SetBits(GPIOG, GPIO_Pin_7) : GPIO_ResetBits(GPIOG, GPIO_Pin_7))
+</span></span></span><span class=line><span class=cl><span class=cp>#define SDA_READ      GPIO_ReadInputDataBit(GPIOG, GPIO_Pin_6)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1>// OLED命令/数据定义
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define OLED_CMD      0           </span><span class=c1>// 写命令
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define OLED_DATA     1           </span><span class=c1>// 写数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 函数声明
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>void</span> <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIOMode_TypeDef</span> <span class=n>GPIO_Mode</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>SCL_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Start</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>byte</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>IIC_IsSlaveAck</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Stop</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Write_IIC_Command</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>IIC_Command</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Write_IIC_Data</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>IIC_Data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=kt>unsigned</span> <span class=n>dat</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=n>cmd</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Init</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Clear</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Display_On</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Display_Off</span><span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowChar</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u8</span> <span class=n>chr</span><span class=p>,</span> <span class=n>u8</span> <span class=n>Char_Size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowString</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u8</span> <span class=o>*</span><span class=n>chr</span><span class=p>,</span> <span class=n>u8</span> <span class=n>Char_Size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowNum</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u32</span> <span class=n>num</span><span class=p>,</span> <span class=n>u8</span> <span class=n>len</span><span class=p>,</span> <span class=n>u8</span> <span class=n>size2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowCHinese</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u8</span> <span class=n>no</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_DrawBMP</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x0</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>y0</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x1</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>y1</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>BMP</span><span class=p>[]);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>fill_picture</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>fill_Data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Delay_50ms</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>Del_50ms</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Delay_1ms</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>Del_1ms</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif
+</span></span></span></code></pre></div><h4 id=oledc><a class=header-anchor href=#oledc></a>oled.c</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file    oled.c 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   OLED显示驱动源文件
+</span></span></span><span class=line><span class=cl><span class=cm>            SCL--PG7
+</span></span></span><span class=line><span class=cl><span class=cm>            SDA--PG6
+</span></span></span><span class=line><span class=cl><span class=cm>            GND--接地
+</span></span></span><span class=line><span class=cl><span class=cm>            VCC--3.3V
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;oled.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;oledfont.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;delay.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stdlib.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stdbool.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function SDA_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    SDA引脚配置
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    GPIO_Mode: 引脚模式（输入或输出）
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIOMode_TypeDef</span> <span class=n>GPIO_Mode</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 使能GPIOG端口时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOG</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* SDA引脚配置(PG6) */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode</span><span class=p>;</span>          <span class=c1>// 输入或输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_50MHz</span><span class=p>;</span>  <span class=c1>// 输出速度50MHz
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>     <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>       <span class=c1>// 上拉电阻
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_6</span><span class=p>;</span>          <span class=c1>// PG6引脚
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOG</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function SCL_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    SCL引脚配置
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>SCL_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 使能GPIOG端口时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOG</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* SCL引脚配置(PG7) */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_OUT</span><span class=p>;</span>      <span class=c1>// 输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_50MHz</span><span class=p>;</span>  <span class=c1>// 输出速度50MHz
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>     <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>       <span class=c1>// 上拉电阻
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_7</span><span class=p>;</span>          <span class=c1>// PG7引脚
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOG</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC总线初始化
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 初始化SCL和SDA引脚 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 设置SDA和SCL为高电平（空闲状态） */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_Start 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC起始信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Start</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 设置SDA为输出模式 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 确保总线空闲状态 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 在SCL为高时，SDA从高变低产生起始信号 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 拉低SCL，准备数据传输 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_SendByte 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC发送一个字节
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    byte: 要发送的字节数据
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=kt>uint8_t</span> <span class=n>byte</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 设置SDA为输出模式 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 拉低SCL，主机准备数据 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 循环发送8位数据，高位先出(MSB) */</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 根据字节的最高位设置SDA电平 */</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>byte</span> <span class=o>&amp;</span> <span class=mh>0x80</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>  <span class=c1>// 最高位为1，SDA置高
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>else</span>
+</span></span><span class=line><span class=cl>            <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>  <span class=c1>// 最高位为0，SDA置低
+</span></span></span><span class=line><span class=cl><span class=c1></span>            
+</span></span><span class=line><span class=cl>        <span class=n>byte</span> <span class=o>&lt;&lt;=</span> <span class=mi>1</span><span class=p>;</span>      <span class=c1>// 左移一位，准备发送下一位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 拉高SCL，从机读取数据位 */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 拉低SCL，主机准备下一个数据位 */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_IsSlaveAck 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    检测从机应答信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   bool: true-从机应答, false-从机未应答
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>IIC_IsSlaveAck</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>ack</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 设置SDA为输入模式，准备读取从机应答 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIO_Mode_IN</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 拉低SCL，从机准备应答位 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 拉高SCL，主机读取应答状态 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 读取SDA状态：1表示未应答，0表示已应答 */</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>SDA_READ</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>ack</span> <span class=o>=</span> <span class=nb>false</span><span class=p>;</span>  <span class=c1>// 未应答(NACK)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=n>ack</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span>   <span class=c1>// 已应答(ACK)
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 拉低SCL，结束应答周期 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>ack</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function IIC_Stop 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    IIC停止信号
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IIC_Stop</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 设置SDA为输出模式 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_Config</span><span class=p>(</span><span class=n>GPIO_Mode_OUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 确保SDA和SCL为低电平 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 先拉高SCL */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SCL_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 在SCL为高时，SDA从低变高产生停止信号 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SDA_SET</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>delay_us</span><span class=p>(</span><span class=mi>5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function Write_IIC_Command 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    写命令到OLED
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    IIC_Command: 要写入的命令
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Write_IIC_Command</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>IIC_Command</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=mh>0x78</span><span class=p>);</span>           <span class=c1>// 从机地址，SA0=0
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_IsSlaveAck</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=mh>0x00</span><span class=p>);</span>           <span class=c1>// 写命令标识
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_IsSlaveAck</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>IIC_Command</span><span class=p>);</span>    <span class=c1>// 发送命令
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_IsSlaveAck</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function Write_IIC_Data 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    写数据到OLED
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    IIC_Data: 要写入的数据
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Write_IIC_Data</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>IIC_Data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=mh>0x78</span><span class=p>);</span>           <span class=c1>// 从机地址，D/C#=0; R/W#=0
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_IsSlaveAck</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=mh>0x40</span><span class=p>);</span>           <span class=c1>// 写数据标识
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_IsSlaveAck</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_SendByte</span><span class=p>(</span><span class=n>IIC_Data</span><span class=p>);</span>       <span class=c1>// 发送数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>IIC_IsSlaveAck</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_WR_Byte 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    OLED写字节函数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    dat: 要写入的数据/命令
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    cmd: 命令/数据标识(0-命令, 1-数据)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=kt>unsigned</span> <span class=n>dat</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=n>cmd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>cmd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>Write_IIC_Data</span><span class=p>(</span><span class=n>dat</span><span class=p>);</span>      <span class=c1>// 写数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>Write_IIC_Command</span><span class=p>(</span><span class=n>dat</span><span class=p>);</span>   <span class=c1>// 写命令
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function fill_picture 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    填充整个屏幕
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    fill_Data: 填充数据
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>fill_picture</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>fill_Data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>m</span><span class=p>,</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>m</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>m</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>m</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xb0</span> <span class=o>+</span> <span class=n>m</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>    <span class=c1>// 设置页地址(0-7)
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x00</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>        <span class=c1>// 设置列地址低位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x10</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>        <span class=c1>// 设置列地址高位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>for</span><span class=p>(</span><span class=n>n</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>n</span> <span class=o>&lt;</span> <span class=mi>128</span><span class=p>;</span> <span class=n>n</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>fill_Data</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span> <span class=c1>// 填充数据
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function Delay_50ms 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    50ms延时函数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Del_50ms: 延时计数(每计数50ms)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Delay_50ms</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>Del_50ms</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(;</span> <span class=n>Del_50ms</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>;</span> <span class=n>Del_50ms</span><span class=o>--</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span><span class=p>(</span><span class=n>m</span> <span class=o>=</span> <span class=mi>6245</span><span class=p>;</span> <span class=n>m</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>;</span> <span class=n>m</span><span class=o>--</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function Delay_1ms 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    1ms延时函数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Del_1ms: 延时计数(每计数1ms)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Delay_1ms</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>Del_1ms</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>j</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=n>Del_1ms</span><span class=o>--</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span><span class=p>(</span><span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;</span> <span class=mi>123</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_Set_Pos 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    设置OLED显示位置
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x: 列坐标(0-127)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y: 页坐标(0-7)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xb0</span> <span class=o>+</span> <span class=n>y</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>                 <span class=c1>// 设置页地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(((</span><span class=n>x</span> <span class=o>&amp;</span> <span class=mh>0xf0</span><span class=p>)</span> <span class=o>&gt;&gt;</span> <span class=mi>4</span><span class=p>)</span> <span class=o>|</span> <span class=mh>0x10</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 设置列地址高位
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>((</span><span class=n>x</span> <span class=o>&amp;</span> <span class=mh>0x0f</span><span class=p>),</span> <span class=n>OLED_CMD</span><span class=p>);</span>               <span class=c1>// 设置列地址低位
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_Display_On 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    开启OLED显示
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Display_On</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=n>X8D</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>  <span class=c1>// 设置DCDC命令
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=n>X14</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>  <span class=c1>// DCDC开启
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=n>XAF</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>  <span class=c1>// 显示开启
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_Display_Off 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    关闭OLED显示
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Display_Off</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=n>X8D</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>  <span class=c1>// 设置DCDC命令
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=n>X10</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>  <span class=c1>// DCDC关闭
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=n>XAE</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>  <span class=c1>// 显示关闭
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_Clear 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    清屏函数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Clear</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>u8</span> <span class=n>i</span><span class=p>,</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xb0</span> <span class=o>+</span> <span class=n>i</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>    <span class=c1>// 设置页地址(0-7)
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x00</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>        <span class=c1>// 设置列地址低位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x10</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span>        <span class=c1>// 设置列地址高位
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=k>for</span><span class=p>(</span><span class=n>n</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>n</span> <span class=o>&lt;</span> <span class=mi>128</span><span class=p>;</span> <span class=n>n</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>OLED_DATA</span><span class=p>);</span>      <span class=c1>// 填充0，清空显示
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_ShowChar 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    在指定位置显示一个字符
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x: 列坐标(0-127)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y: 页坐标(0-7)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    chr: 要显示的字符
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Char_Size: 字体大小(12或16)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowChar</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u8</span> <span class=n>chr</span><span class=p>,</span> <span class=n>u8</span> <span class=n>Char_Size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>c</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>c</span> <span class=o>=</span> <span class=n>chr</span> <span class=o>-</span> <span class=sc>&#39; &#39;</span><span class=p>;</span>  <span class=c1>// 得到偏移后的值
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>x</span> <span class=o>&gt;</span> <span class=n>Max_Column</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>y</span> <span class=o>=</span> <span class=n>y</span> <span class=o>+</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>Char_Size</span> <span class=o>==</span> <span class=mi>16</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>F8X16</span><span class=p>[</span><span class=n>c</span> <span class=o>*</span> <span class=mi>16</span> <span class=o>+</span> <span class=n>i</span><span class=p>],</span> <span class=n>OLED_DATA</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span> <span class=o>+</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>8</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>F8X16</span><span class=p>[</span><span class=n>c</span> <span class=o>*</span> <span class=mi>16</span> <span class=o>+</span> <span class=n>i</span> <span class=o>+</span> <span class=mi>8</span><span class=p>],</span> <span class=n>OLED_DATA</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span><span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>6</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>F6x8</span><span class=p>[</span><span class=n>c</span><span class=p>][</span><span class=n>i</span><span class=p>],</span> <span class=n>OLED_DATA</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function oled_pow 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    幂运算函数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    m: 底数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    n: 指数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   u32: 计算结果
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=n>u32</span> <span class=nf>oled_pow</span><span class=p>(</span><span class=n>u8</span> <span class=n>m</span><span class=p>,</span> <span class=n>u8</span> <span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>u32</span> <span class=n>result</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=n>n</span><span class=o>--</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>*=</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_ShowNum 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    显示数字
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x: 起始列坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y: 起始页坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    num: 要显示的数字
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    len: 数字位数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    size2: 字体大小
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowNum</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u32</span> <span class=n>num</span><span class=p>,</span> <span class=n>u8</span> <span class=n>len</span><span class=p>,</span> <span class=n>u8</span> <span class=n>size2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>u8</span> <span class=n>t</span><span class=p>,</span> <span class=n>temp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>u8</span> <span class=n>enshow</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>t</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>t</span> <span class=o>&lt;</span> <span class=n>len</span><span class=p>;</span> <span class=n>t</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>temp</span> <span class=o>=</span> <span class=p>(</span><span class=n>num</span> <span class=o>/</span> <span class=nf>oled_pow</span><span class=p>(</span><span class=mi>10</span><span class=p>,</span> <span class=n>len</span> <span class=o>-</span> <span class=n>t</span> <span class=o>-</span> <span class=mi>1</span><span class=p>))</span> <span class=o>%</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>enshow</span> <span class=o>==</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=n>t</span> <span class=o>&lt;</span> <span class=p>(</span><span class=n>len</span> <span class=o>-</span> <span class=mi>1</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span><span class=p>(</span><span class=n>temp</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=nf>OLED_ShowChar</span><span class=p>(</span><span class=n>x</span> <span class=o>+</span> <span class=p>(</span><span class=n>size2</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)</span> <span class=o>*</span> <span class=n>t</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=sc>&#39; &#39;</span><span class=p>,</span> <span class=n>size2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=k>continue</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=k>else</span>
+</span></span><span class=line><span class=cl>                <span class=n>enshow</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_ShowChar</span><span class=p>(</span><span class=n>x</span> <span class=o>+</span> <span class=p>(</span><span class=n>size2</span> <span class=o>/</span> <span class=mi>2</span><span class=p>)</span> <span class=o>*</span> <span class=n>t</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=n>temp</span> <span class=o>+</span> <span class=sc>&#39;0&#39;</span><span class=p>,</span> <span class=n>size2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_ShowString 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    显示字符串
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x: 起始列坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y: 起始页坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    chr: 要显示的字符串
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    Char_Size: 字体大小
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowString</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u8</span> <span class=o>*</span><span class=n>chr</span><span class=p>,</span> <span class=n>u8</span> <span class=n>Char_Size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=n>chr</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>!=</span> <span class=sc>&#39;\0&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_ShowChar</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=n>chr</span><span class=p>[</span><span class=n>j</span><span class=p>],</span> <span class=n>Char_Size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>+=</span> <span class=mi>8</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>x</span> <span class=o>&gt;</span> <span class=mi>120</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>x</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=n>y</span> <span class=o>+=</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=n>j</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_ShowCHinese 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    显示汉字
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x: 列坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y: 页坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    no: 汉字在字库中的索引
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_ShowCHinese</span><span class=p>(</span><span class=n>u8</span> <span class=n>x</span><span class=p>,</span> <span class=n>u8</span> <span class=n>y</span><span class=p>,</span> <span class=n>u8</span> <span class=n>no</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>u8</span> <span class=n>t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>t</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>t</span> <span class=o>&lt;</span> <span class=mi>16</span><span class=p>;</span> <span class=n>t</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>Hzk</span><span class=p>[</span><span class=mi>2</span> <span class=o>*</span> <span class=n>no</span><span class=p>][</span><span class=n>t</span><span class=p>],</span> <span class=n>OLED_DATA</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span> <span class=o>+</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>t</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>t</span> <span class=o>&lt;</span> <span class=mi>16</span><span class=p>;</span> <span class=n>t</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>Hzk</span><span class=p>[</span><span class=mi>2</span> <span class=o>*</span> <span class=n>no</span> <span class=o>+</span> <span class=mi>1</span><span class=p>][</span><span class=n>t</span><span class=p>],</span> <span class=n>OLED_DATA</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_DrawBMP 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    显示BMP图片
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x0: 起始列坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y0: 起始页坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    x1: 结束列坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    y1: 结束页坐标
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    BMP: 图片数据数组
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_DrawBMP</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x0</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>y0</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x1</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>y1</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>BMP</span><span class=p>[])</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>y1</span> <span class=o>%</span> <span class=mi>8</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>y</span> <span class=o>=</span> <span class=n>y1</span> <span class=o>/</span> <span class=mi>8</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=n>y</span> <span class=o>=</span> <span class=n>y1</span> <span class=o>/</span> <span class=mi>8</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>    <span class=k>for</span><span class=p>(</span><span class=n>y</span> <span class=o>=</span> <span class=n>y0</span><span class=p>;</span> <span class=n>y</span> <span class=o>&lt;</span> <span class=n>y1</span><span class=p>;</span> <span class=n>y</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>OLED_Set_Pos</span><span class=p>(</span><span class=n>x0</span><span class=p>,</span> <span class=n>y</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>x0</span><span class=p>;</span> <span class=n>x</span> <span class=o>&lt;</span> <span class=n>x1</span><span class=p>;</span> <span class=n>x</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=n>BMP</span><span class=p>[</span><span class=n>j</span><span class=o>++</span><span class=p>],</span> <span class=n>OLED_DATA</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function OLED_Init 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    OLED初始化
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OLED_Init</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 初始化IIC总线 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>IIC_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nf>delay_ms</span><span class=p>(</span><span class=mi>200</span><span class=p>);</span>  <span class=c1>// 延时等待OLED稳定
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* SSD1306初始化序列 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xAE</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 关闭显示
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x00</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 设置列地址低位
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x10</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 设置列地址高位
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 设置起始行地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xB0</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 设置页地址
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x81</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 对比度控制
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xFF</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 对比度值128
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xA1</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 段重映射设置
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xA6</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 正常/反色显示
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xA8</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 多路复用比率设置
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x3F</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 占空比1/64
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xC8</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// COM扫描方向
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xD3</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 显示偏移设置
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x00</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 显示偏移值
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xD5</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 显示时钟分频
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 振荡频率
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xD8</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 区域颜色模式关闭
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x05</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xD9</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 预充电周期
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xF1</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xDA</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// COM引脚配置
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x12</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xDB</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// VCOMH设置
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x30</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x8D</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 电荷泵使能
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0x14</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=nf>OLED_WR_Byte</span><span class=p>(</span><span class=mh>0xAF</span><span class=p>,</span> <span class=n>OLED_CMD</span><span class=p>);</span> <span class=c1>// 开启OLED面板显示
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></div><h4 id=mainc><a class=header-anchor href=#mainc></a>main.c</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>* @file    main.c 
+</span></span></span><span class=line><span class=cl><span class=cm>* @author  
+</span></span></span><span class=line><span class=cl><span class=cm>* @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm>* @date    2025.08.05
+</span></span></span><span class=line><span class=cl><span class=cm>* @brief   主程序 - OLED显示测试
+</span></span></span><span class=line><span class=cl><span class=cm>            SCL--PG7
+</span></span></span><span class=line><span class=cl><span class=cm>            SDA--PG6
+</span></span></span><span class=line><span class=cl><span class=cm>            KEY1--PA0
+</span></span></span><span class=line><span class=cl><span class=cm>            KEY2--PE2
+</span></span></span><span class=line><span class=cl><span class=cm>******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm>**/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stm32f4xx.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;delay.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;oled.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdbool.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;bmp.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function Key1_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    按键1初始化(PA0)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Key1_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 使能GPIOA端口时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOA</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 配置PA0引脚 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_0</span><span class=p>;</span>        <span class=c1>// 引脚编号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_IN</span><span class=p>;</span>     <span class=c1>// 输入模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_NOPULL</span><span class=p>;</span> <span class=c1>// 无上下拉
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function Key2_Config 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    按键2初始化(PE2)
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   None
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Key2_Config</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 使能GPIOE端口时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOE</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 配置PE2引脚 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_2</span><span class=p>;</span>        <span class=c1>// 引脚编号
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_IN</span><span class=p>;</span>     <span class=c1>// 输入模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_NOPULL</span><span class=p>;</span> <span class=c1>// 无上下拉
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOE</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm>  * @function main 
+</span></span></span><span class=line><span class=cl><span class=cm>  * @brief    主函数
+</span></span></span><span class=line><span class=cl><span class=cm>  * @param    None
+</span></span></span><span class=line><span class=cl><span class=cm>  * @retval   int: 程序执行状态
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 硬件初始化 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Key1_Config</span><span class=p>();</span>      <span class=c1>// 初始化按键1
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>Key2_Config</span><span class=p>();</span>      <span class=c1>// 初始化按键2
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_Init</span><span class=p>();</span>        <span class=c1>// 初始化OLED
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>OLED_Clear</span><span class=p>();</span>       <span class=c1>// 清屏
+</span></span></span><span class=line><span class=cl><span class=c1></span>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 主循环 */</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 检测按键1按下 */</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=nf>GPIO_ReadInputDataBit</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_Pin_0</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/* 显示BMP1图片 */</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_DrawBMP</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>128</span><span class=p>,</span> <span class=mi>8</span><span class=p>,</span> <span class=n>BMP1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=nf>delay_ms</span><span class=p>(</span><span class=mi>500</span><span class=p>);</span>  <span class=c1>// 防抖延时
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=cm>/* 检测按键2按下 */</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=nf>GPIO_ReadInputDataBit</span><span class=p>(</span><span class=n>GPIOE</span><span class=p>,</span> <span class=n>GPIO_Pin_2</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/* 显示BMP2图片 */</span>
+</span></span><span class=line><span class=cl>            <span class=nf>OLED_DrawBMP</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>128</span><span class=p>,</span> <span class=mi>8</span><span class=p>,</span> <span class=n>BMP2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=nf>delay_ms</span><span class=p>(</span><span class=mi>500</span><span class=p>);</span>  <span class=c1>// 防抖延时
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div></div><footer class=article-footer><ul class=article-tag-list itemprop=keywords></ul></footer></div><nav id=article-nav data-aos=fade-up><div class="article-nav-link-wrap article-nav-link-left"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt=STM32与RFID模块(MFRC522)完全应用指南 class=lazyload>
+<a href=https://qrshxc.github.io/post/rfid/></a><div class=article-nav-caption>前一篇</div><h3 class=article-nav-title>STM32与RFID模块(MFRC522)完全应用指南</h3></div><div class="article-nav-link-wrap article-nav-link-right"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt="RFID 多标签防碰撞机制深度解析：读写器如何从多张卡片中准确选中一张？" class=lazyload>
+<a href=https://qrshxc.github.io/post/acm/></a><div class=article-nav-caption>后一篇</div><h3 class=article-nav-title>RFID 多标签防碰撞机制深度解析：读写器如何从多张卡片中准确选中一张？</h3></div></nav></article></section></div><footer id=footer><div style=width:100%;overflow:hidden><div class=footer-line></div></div><div id=footer-info><div><span class=icon-copyright></span>
+2020 -
+2025
+<span class="footer-info-sep rotate"></span>
+黄小冲</div><div>基于&nbsp;<a href=https://gohugo.io/ target=_blank>Hugo</a>&nbsp; Theme.<a href=https://github.com/D-Sketon/hugo-theme-reimu target=_blank>Reimu</a></div><div><span class=icon-brush>&nbsp;
+74.1k
+</span>&nbsp;|&nbsp;
+<span class=icon-coffee>&nbsp;
+02:45</span></div><div class=footer-beian><a target=_blank rel=noopener href=https://beian.miit.gov.cn>赣ICP备2025054780号-1</a></div><div><span class=icon-eye></span>
+<span id=busuanzi_container_site_pv>总访问量&nbsp;<span id=busuanzi_value_site_pv></span></span>
+&nbsp;|&nbsp;
+<span class=icon-user></span>
+<span id=busuanzi_container_site_uv>总访客量&nbsp;<span id=busuanzi_value_site_uv></span></span></div></div></footer><div class=sidebar-top><div class="sidebar-top-taichi rotate"></div><div class=arrow-up></div></div><div id=mask class=hide></div></div><nav id=mobile-nav><div class=sidebar-wrap><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#1-基本概念>1. 基本概念</a></li><li><a href=#2引脚说明>2.引脚说明</a></li><li><a href=#3通信速率>3.通信速率</a></li><li><a href=#4通信过程>4.通信过程</a><ul><li><a href=#1-空闲状态>(1) 空闲状态</a></li><li><a href=#2-开始信号>(2) 开始信号</a></li><li><a href=#3-数据传输>(3) 数据传输</a></li><li><a href=#4-应答信号>(4) 应答信号</a></li><li><a href=#5-停止信号>(5) 停止信号</a></li></ul></li><li><a href=#5器件地址>5.器件地址</a></li><li><a href=#6程序设计>6.程序设计</a><ul><li></li></ul></li></ul><ul><li><a href=#1基本概念>1.基本概念</a></li><li><a href=#2驱动芯片>2.驱动芯片</a></li><li><a href=#3器件地址>3.器件地址</a></li><li><a href=#4程序设计>4.程序设计</a><ul><li></li></ul></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div></div><div class=sidebar-btn-wrapper><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></nav></div><script src=https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js integrity=sha384-3gT/vsepWkfz/ff7PpWNUeMzeWoH3cDhm/A8jM7ouoAK0/fP/9bcHHR5kHq2nf+e crossorigin=anonymous></script><script src=https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js integrity=sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q crossorigin=anonymous></script><script src=/js/main.js integrity crossorigin=anonymous></script><script src=/js/aos.js integrity crossorigin=anonymous></script><script>var aosInit=()=>{AOS.init({duration:1e3,easing:"ease",once:!0,offset:50})};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",aosInit):aosInit()</script><script src=/js/pjax_main.js integrity crossorigin=anonymous data-pjax></script><script src=https://npm.webcache.cn/mouse-firework@0.1.0/dist/index.umd.js integrity=sha384-KM6i7tu43nYd6e0beIljxHMC5tZc58XBDu7pPA58w50h18Jsx7gLdimfS09RXlKv crossorigin=anonymous></script><script>if(window.firework){const e=JSON.parse('{"excludeelements":["a","button"],"particles":[{"colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"duration":[1200,1800],"easing":"easeOutExpo","move":["emit"],"number":20,"shape":"circle","shapeOptions":{"alpha":[0.3,0.5],"radius":[16,32]}},{"colors":["#ff0000"],"duration":[1200,1800],"easing":"easeOutExpo","move":["diffuse"],"number":1,"shape":"circle","shapeOptions":{"alpha":[0.2,0.5],"lineWidth":6,"radius":20}}]}');e.excludeElements=e.excludeelements,delete e.excludeelements,window.firework(e)}</script><div id=lazy-script><div><script data-pjax>window.REIMU_POST={author:"黄小冲",title:"IIC总线通信与AT24C02存储芯片及OLED屏应用详解",url:"https://qrshxc.github.io/post/iic/",description:` 一、内部集成电路概述 1. 基本概念 内部集成电路（Inter Integrated Circuit）的简称叫做IIC 或者I2C，是一种简单的、半双工同步通信的串行通信接口，IIC 总线是上世纪80 年代（1982 年）由飞利浦公司设计出来，当时的目的是为了给MCU 和外围芯片提供更简单的交互方式。
+`,cover:"https://qrshxc.github.io/images/banner.webp"}</script><script src=/js/insert_highlight.js integrity crossorigin=anonymous data-pjax></script><script type=module data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;
+
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script></div></div><script src=https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js async integrity=sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S crossorigin=anonymous></script><script>"serviceWorker"in navigator&&navigator.serviceWorker.getRegistrations().then(e=>{for(let t of e)t.unregister()})</script><script>const reimuCopyright=String.raw`
+   ______     ______     __     __    __     __  __    
+  /\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+  \ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+   \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+    \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                    
+  `;console.log(String.raw`%c ${reimuCopyright}`,"color: #ff5252;"),console.log("%c Theme.Reimu %c https://github.com/D-Sketon/hugo-theme-reimu ","color: white; background: #ff5252; padding:5px 0;","padding:4px;border:1px solid #ff5252;")</script></body></html>

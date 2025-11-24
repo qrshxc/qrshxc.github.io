@@ -1,0 +1,234 @@
+<!doctype html><html lang=zh-cn data-theme-mode=auto><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>STM32串口通信 | 黄小冲</title><meta name=description content="记录成长与学习的足迹"><script>window.siteConfig=JSON.parse('{"anchor_icon":null,"clipboard":{"copyright":{"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！","count":50,"enable":false},"fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","success":"复制成功(*^▽^*)"},"code_block":{"expand":true},"icon_font":"4552607_0khxww3tj3q9","outdate":{"daysago":180,"enable":false,"message":"本文最后更新于 {time}，请注意文中内容可能已经发生变化。"}}')</script><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=preload as=style href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap" media=print onload='this.media="all"'><link rel=preload href=//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=stylesheet href=/css/loader.min.2ad0e9bbffb534e893c0ecefc44787a277cf851387e8ad9dccfbc3a5f0886dbe.css><meta property="og:type" content="website"><meta property="og:title" content="STM32串口通信 | 黄小冲"><meta property="og:description" content="记录成长与学习的足迹"><meta property="og:url" content="https://qrshxc.github.io/post/usart/"><meta property="og:site_name" content="九思的博客"><meta property="og:image" content="/"><meta property="article:author" content="黄小冲"><meta property="article:published_time" content="2025-07-27T17:41:58+08:00"><meta property="article:modified_time" content="2025-07-27T17:41:58+08:00"><meta name=twitter:card content="summary"><meta name=twitter:image content="/"><link rel="shortcut icon" href=/favicon.ico><link rel=stylesheet href=/css/main.min.63684398a9584d95e2411a922ec8187281bbab44ffd348e26a806cae3370a598.css><link rel=preload as=style href=https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css onload='this.onload=null,this.rel="stylesheet"'><link rel=preload as=style href=https://npm.webcache.cn/katex@0.16.9/dist/katex.min.css onload='this.onload=null,this.rel="stylesheet"'><script src=https://npm.webcache.cn/pace-js@1.2.4/pace.min.js integrity=sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8 crossorigin=anonymous></script><link rel=stylesheet href=https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css></head><body><div id=loader><div class="loading-left-bg loading-bg"></div><div class="loading-right-bg loading-bg"></div><div class=spinner-box><div class=loading-taichi><svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" shape-rendering="geometricPrecision"><path d="M303.5 432a80 80 0 01-12 160 80 80 0 0112-160z" fill="#ff5252"/><path d="M512 65a447 447 0 010 894V929a417 417 0 000-834 417 417 0 000 834v30a447 447 0 010-894zm0 30A417 417 0 01929 512 208.5 208.5.0 01720.5 720.5V592a80 80 0 000-160 80 80 0 000 160V720.5A208.5 208.5.0 01512 512 208.5 208.5.0 00303.5 303.5 208.5 208.5.0 0095 512 417 417 0 01512 95z" fill="#ff5252"/></svg></div><div class=loading-word>正在努力打败拖延兽...</div></div></div></div><script>var time=null,startLoading=()=>{time=Date.now(),document.getElementById("loader").classList.remove("loading")},endLoading=()=>{time?Date.now()-time>500?(time=null,document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading")):(setTimeout(endLoading,500-(Date.now()-time)),time=null):(document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading"))};window.addEventListener("DOMContentLoaded",endLoading),document.getElementById("loader").addEventListener("click",endLoading)</script><div id=copy-tooltip style="pointer-events:none;opacity:0;transition:all .2s ease;position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,.5);padding:10px 15px;border-radius:10px"></div><div id=container><div id=wrap><div id=header-nav><nav id=main-nav><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/>首页</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/archives>归档</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/about>关于</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/friend>友链</a>
+</span><a id=main-nav-toggle class=nav-icon></a></nav><nav id=sub-nav></nav></div><header id=header><picture></picture><img fetchpriority=high src=/images/banner.webp alt=STM32串口通信><div id=header-outer><div id=header-title><a href=/ id=logo><h1 data-aos=slide-up>STM32串口通信</h1></a><h2 id=subtitle-wrap data-aos=slide-down></h2></div></div></header><div id=content class=sidebar-right><aside id=sidebar><div class="sidebar-wrapper wrap-sticky"><div class=sidebar-wrap data-aos=fade-up><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><ul><li><a href=#1-通信的方式>1. 通信的方式</a></li></ul></li><li><a href=#2-串行通信分类>2. 串行通信分类</a></li><li><a href=#3串行接口意义>3.串行接口意义</a></li><li><a href=#4硬件接线说明>4.硬件接线说明</a></li><li><a href=#5串口通信参数>5.串口通信参数</a><ul><li><a href=#字符格式><strong>字符格式</strong></a></li><li><a href=#通信速率>通信速率</a></li></ul></li><li><a href=#6usart-的使用流程>6.USART 的使用流程</a><ul><li><a href=#程序设计>程序设计</a></li></ul></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div><div class=sidebar-btn-wrapper style=position:static><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></div></div><div class=sidebar-widget></div></aside><section id=main><article class="h-entry article" itemprop=blogPost itemscope itemtype=https://schema.org/BlogPosting><div class=article-inner data-aos=fade-up><div class=article-meta><div class=article-date><span class=article-date-link data-aos=zoom-in><time datetime="2025-07-27 17:41:58 +0800 +0800" itemprop=datePublished>2025-07-27</time>
+<time style=display:none id=post-update-time>2025-07-27</time></span></div><div class=article-category></div></div><div class=hr-line></div><div class="e-content article-entry" itemprop=articleBody><h1 id=一串口通信的原理与应用><a class=header-anchor href=#%e4%b8%80%e4%b8%b2%e5%8f%a3%e9%80%9a%e4%bf%a1%e7%9a%84%e5%8e%9f%e7%90%86%e4%b8%8e%e5%ba%94%e7%94%a8></a>一、串口通信的原理与应用</h1><h3 id=1-通信的方式><a class=header-anchor href=#1-%e9%80%9a%e4%bf%a1%e7%9a%84%e6%96%b9%e5%bc%8f></a>1. 通信的方式</h3><p>处理器与外部设备之间或者处理器与处理器之间通信的方式分两种：串行通信和并行通信。</p><p><strong>串行通信</strong>
+传输原理：数据按位依次顺序传输（每一位占据固定的时间长度 MSB or LSB）
+优点：占用引脚资源少、成本低、传输距离远
+缺点：速度慢
+应用场合：常用于工控、测量设备，以及部分通信设备 如 USB、COM 口</p><p><strong>并行通信</strong>
+传输原理：数据按位同时传输（按照字节或者字节的倍数去传输）
+优点：速度快
+缺点：占用引脚多，成本高、传输距离近、抗干扰能力弱（串扰）
+应用场合：一般适用数据量大、传输距离较近的场合 如计算机总线</p><hr><h2 id=2-串行通信分类><a class=header-anchor href=#2-%e4%b8%b2%e8%a1%8c%e9%80%9a%e4%bf%a1%e5%88%86%e7%b1%bb></a>2. 串行通信分类</h2><p>如果按照数据的传送方向，可以分为3 种</p><p>**单 工 ：**数据只能从一方传向另一方，而不能往反方向传输。这是根据应用的特点，对通信双方的软、硬件进行了简化。单向传输设备，如并行接口打印机就是通过单工的方式进行数据传输的。
+<strong>半双工</strong> ：允许数据往两方传向传输，但只能交替进行，而不能同时进行的传输方式。常见应用如对讲机。
+**全双工 ：****数据支持同时在两个方向上传输，就相当于两个单工通信的结合 如移动电话</p><p>如果按照数据的同步方式，可以分为2 种</p><p>**同步通信：**指的是带时钟同步信号，如IIC 接口和SPI 接口都属于同步通信，同步通信要求通信双方的时钟必须一致（发送数据的同时进行接收数据），同步通信是一种连续串行传输数据的通信方式，一次只传输一帧数据，相对于异步通信而言传输速率更高，但是缺点是通信双方必须使用同一个时钟。</p><p>**异步通信：**指的是不带时钟同步信号，如UART 接口就属于异步通信，要求通信双方必须具有接收器和发送器，但是接收器和发送器可以使用各自的时钟，异步通信是以字符为单位去传输，由于异步通信工作是非同步的，所以接收器必须时刻做好接收数据的准备，所以每个
+字符都会使用起始位和停止位代表字符的开始和结束，相比于同步通信而言设备成本低，但是缺点是信道利用率低。</p><p><strong>注意：使用异步通信，通信双方要约定好的字符格式和通信速率，否则会导致数据丢失等</strong></p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121150931766.png alt=image-20251121150931766></p><h2 id=3串行接口意义><a class=header-anchor href=#3%e4%b8%b2%e8%a1%8c%e6%8e%a5%e5%8f%a3%e6%84%8f%e4%b9%89></a>3.串行接口意义</h2><p>串行通信就是把数据按位进行顺序传输，在计算机传输的过程中是使用并行通信的，就涉及到串转并和并转串。可以利用软件实现，也可以用硬件实现。如果使用软件实现，会增大CPU 的负担，通常使用硬件（串口）实现。</p><p>串口是计算机进行串行通信的物理接口，线路简单，串口是按位进行数据的收发，可以用一根线(TXD)发送数据的同时用另一根线接收(RXD)。</p><p>常用的串口接口有两种：9 针串口（DB-9） 25 针串口（DB-25） 每种都分为公头和母头</p><p>一般DB9 串口有9 个引脚，但是一般作为串口通信时只需要用到三个引脚，分别是RXD、TXD、GND，其他的线一般用于握手。
+单片机如果打算和计算机进行串口通信，则需要注意串口的电平协议，单片机采用的是TTL电平，而计算机采用的RS232 电平，所以单片机需要和计算机通信，则需要增加如MAX232电平转换芯片进行电气转换。</p><p>TTL 电平协议 ：采用正逻辑电平 +5V 等价于逻辑1 0V 等价于逻辑0
+RS232 电平协议 ：采用负逻辑电平 -15V~-3V 等价于逻辑1 +3V~+15V 等价于逻辑0</p><p>为使通信顺利进行，由通信双方就如何交换信息所建立进来的一套规定，称为通信控制规程，网络术语中称为协议。另外，为统一接口和连接，规程中还有关于信号线功能、电气特性、机械特性等明确的规定，称之为接口标准。如RS-232、RS-485 接口标准等。</p><p>RS-232 是一个已制定很久的标准（RS 表示推荐标准，232 表示标识符），它描述了计算机及相关设备间较低速率的串行数据通信的物理接口及协议。它是由一个工业贸易组电子工业联合会（EIA）定义的，最初是为电传打印机设备而制定。RS-232 是计算机用来与modem 及其它串行设备交谈或交换数据的接口。</p><p>RS-232 接口速率不会很高，线缆最长为15 米。RS-232 接口通常被用于将电脑信号输入控制，当通信距离较近时，可不需要Modem，通信双方可以直接连接，这种情况下，只需使用少数几根信号线，即TXD、RXD、GND。</p><p>RS-232 采用负逻辑规定逻辑电平，-3V ～ -15V 为逻辑“1”电平，+3V ～ +15V 为逻辑“0”电平。这种信号电平与通常并行接口中使用的TTL 电平不同，会常用一些电平转换芯片如MAX232。</p><p>现在个人计算机提供的串行端口终端的传输速度一般都可以达到115200bps 甚至更高，标准串口能够提供的传输速度主要有以下波特率：1200bps、2400bps、4800bps、9600bps、19200bsp、38400bps、57600bps、115200bps 等，在仪器仪表或工业控制场合，9600bps 是最常见的传输速度，在传输距离较近时，使用最高传输速度也是可以的。传输距离和传输速度的关系成反比，适当地降低传输速度，可以延长RS-232 的传输距离，提高通讯的稳定性。</p><h2 id=4硬件接线说明><a class=header-anchor href=#4%e7%a1%ac%e4%bb%b6%e6%8e%a5%e7%ba%bf%e8%af%b4%e6%98%8e></a>4.硬件接线说明</h2><p>但是对于目前来说，很多设备并不会集成DB-9 串口，而是直接采用4 针的串口（TXD、RXD、GND、VCC），然后通过CH340 芯片进行转换，就可以直接通过USB 口转串口的方式达到和计算机通信的目的。</p><p>如果采用有线方式与PC 机进行通信，则需要用到CH340 转换芯片，数据会通过USART1 串口传输。如果采用无线方式与手机进行通信，则不需要用到CH340 转换芯片，但是需要通过蓝牙模块进行数据的转发，蓝牙模块如果接在USART1 串口的接口，则数据也是通过USART1 进行传输。</p><p>**注意:**如果打算实现有线通信和无线通信的结合,则需要把无线通信模块链接在其他的串口上即可，想要和计算机通信，只能使用USART1 串口，因为引脚是固定的。</p><h2 id=5串口通信参数><a class=header-anchor href=#5%e4%b8%b2%e5%8f%a3%e9%80%9a%e4%bf%a1%e5%8f%82%e6%95%b0></a>5.串口通信参数</h2><p>串口通信属于全双工异步通信，所以通信双方必须具有发送端（TXD）与接收端（RXD），由于异步通信不需要时钟来进行数据同步，但是通信双方必须提前约定好字符格式与通信速率。</p><h3 id=字符格式><a class=header-anchor href=#%e5%ad%97%e7%ac%a6%e6%a0%bc%e5%bc%8f></a><strong>字符格式</strong></h3><p>一般在进行串口通信的时候，需要通信双方在协议层规定好传输的数据包（字符帧）的格式，字符帧由起始位、数据位、校验位、停止位组成。这样通信双方就可以利用起始位和停止位实现同步。 关于字符格式的相关参数的说明可以参考STM32 中文参考手册第26.3.1 章节。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121151529214.png alt=image-20251121151529214></p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121151548100.png alt=image-20251121151548100></p><h3 id=通信速率><a class=header-anchor href=#%e9%80%9a%e4%bf%a1%e9%80%9f%e7%8e%87></a>通信速率</h3><p>在串口通信中，如果设置好了通信的字符格式，还需要通信双方约定好通信速率，也就是单位时间内传输的有效二进制数的个数，所以也被称为波特率（bps baud pre second）。一般串口通信常用的波特率为9600bps、38400bps、57600bps、115200bps，当然也有其他的选择，波特率有对应的计算公式，可以参考STM32 中文参考手册的第26.3.4 章节。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121151648004.png alt=image-20251121151648004></p><p>举个例子：大多数使用串口通信的传感器的字符格式都是8bit 数据位、1bit 停止位、无奇偶校验位，当然还必须有1bit 起始位，所以一帧数据是10bit，如果通信速率设置为9600bps，则单位时间内能传输的数据帧为9600/10 = 960 帧。这是使用频率最高的一种通信速率！</p><h2 id=6usart-的使用流程><a class=header-anchor href=#6usart-%e7%9a%84%e4%bd%bf%e7%94%a8%e6%b5%81%e7%a8%8b></a>6.USART 的使用流程</h2><p>USART 指的是通用同步异步收发器，是STM32 中的串行通信设备，STM32F407ZET6 一共提供了6 个串行接口供用户使用，其中4 个为USART，2 个为UART。UART 指的是通用异步收发器，其实就是在USART 的基础上裁掉了同步通信的功能，只保留了异步通信。
+平时一般都是使用串口的异步通信功能，区分同步还是异步其实很简单，就是看是否在通信是对外提供时钟输出。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121152012792.png alt=image-20251121152012792></p><p>可以看到STM32 中的USART 采用工业标准中常用的NRZ 编码进行通信，NRZ 码指的是不归零码（Non-Return-Zero），指的是每次传输1bit 数据后电平不归零，其实还有一种RZ 码，指的是归零码（Return-Zero），指的是每次传输1bit 数据后需要电平归零。</p><p>设计一个程序，实现可以向计算机的串口调试助手发送一个字符串，要求把程序封装为一个接口，该接口专门用于发送字符串。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121152156845.png alt=image-20251121152156845></p><p>如果打算串口发送字符串，由于字符串属于字符序列，所以按照顺序发送字符，由于串口外设的发送数据寄存器是8bit 的，所以每次只能发送1 个字符，并且只有等上一次字符发送完成，才可以发送下一个字符。可以通过检测串口外设的发送数据寄存器是否为空，来判断待发送的字节是否发送完成，所以需要检测状态标志。</p><h3 id=程序设计><a class=header-anchor href=#%e7%a8%8b%e5%ba%8f%e8%ae%be%e8%ae%a1></a>程序设计</h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> * @file    usart.c 
+</span></span></span><span class=line><span class=cl><span class=cm> * @author  qrshxc@163.com
+</span></span></span><span class=line><span class=cl><span class=cm> * @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @date    2025.7.27
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief   利用USART1和计算机通信（PA9和PA10引脚）
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> **/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stm32f4xx.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      delay_us
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     微秒级延时函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     nus: 延时的微秒数
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      使用SysTick定时器实现精确微秒延时
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>delay_us</span><span class=p>(</span><span class=n>u32</span> <span class=n>nus</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>  		  <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>LOAD</span> <span class=o>=</span> <span class=n>nus</span> <span class=o>*</span> <span class=mi>21</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span>  <span class=c1>// 计数次数，递减计数，0结束
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>VAL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>   		  <span class=c1>// 清除当前数值寄存器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>   		  <span class=c1>// 打开系统嘀嗒定时器，使用参考时钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=k>while</span> <span class=p>((</span><span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>&amp;</span> <span class=mh>0x00010000</span><span class=p>)</span><span class=o>==</span><span class=mi>0</span><span class=p>);</span> <span class=c1>// 等待计时完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>   		  <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      delay_ms
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     毫秒级延时函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     nus: 延时的毫秒数
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      使用SysTick定时器实现精确毫秒延时
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>delay_ms</span><span class=p>(</span><span class=n>u32</span> <span class=n>nus</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>    <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>LOAD</span> <span class=o>=</span> <span class=n>nus</span> <span class=o>*</span> <span class=mi>21</span> <span class=o>*</span> <span class=mi>1000</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span> <span class=c1>// 计数次数，递减计数，0结束
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>VAL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>     <span class=c1>// 清除当前数值寄存器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>    <span class=c1>// 打开系统嘀嗒定时器，使用参考时钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=k>while</span> <span class=p>((</span><span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>&amp;</span> <span class=mh>0x00010000</span><span class=p>)</span><span class=o>==</span><span class=mi>0</span><span class=p>);</span> <span class=c1>// 等待计时完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>    <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART1_IRQHandler
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     USART1中断服务函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      处理USART1接收中断，实现数据回显功能
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART1_IRQHandler</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>uint8_t</span> <span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 检查USART1接收中断标志 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=nf>USART_GetITStatus</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>USART_IT_RXNE</span><span class=p>)</span> <span class=o>==</span> <span class=n>SET</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 接收数据，一次一个字节 */</span>
+</span></span><span class=line><span class=cl>		<span class=n>data</span> <span class=o>=</span> <span class=nf>USART_ReceiveData</span><span class=p>(</span><span class=n>USART1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 发送数据（回显功能） */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART_SendData</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>data</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART1_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     配置USART1串口
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     baud: 波特率
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置USART1为异步模式，8位数据位，1位停止位，无校验
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART1_Config</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>baud</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>USART_InitTypeDef</span> <span class=n>USART_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitTypeDef</span> <span class=n>NVIC_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开GPIOA时钟 */</span>	
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOA</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开USART1时钟 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_APB2PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_APB2Periph_USART1</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>	
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置PA9和PA10的复用功能为USART1 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>GPIO_PinAFConfig</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_PinSource9</span><span class=p>,</span> <span class=n>GPIO_AF_USART1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=nf>GPIO_PinAFConfig</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_PinSource10</span><span class=p>,</span> <span class=n>GPIO_AF_USART1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置GPIO的复用功能+初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_AF</span><span class=p>;</span>        <span class=c1>// 复用功能模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_100MHz</span><span class=p>;</span>  <span class=c1>// 高速模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>      <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>        <span class=c1>// 上拉模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span>  <span class=n>GPIO_Pin_9</span> <span class=o>|</span> <span class=n>GPIO_Pin_10</span><span class=p>;</span> <span class=c1>// PA9(TX), PA10(RX)
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置USART1参数+初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_BaudRate</span> <span class=o>=</span> <span class=n>baud</span><span class=p>;</span>          <span class=c1>// 波特率
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_WordLength</span> <span class=o>=</span> <span class=n>USART_WordLength_8b</span><span class=p>;</span> <span class=c1>// 8位数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_StopBits</span> <span class=o>=</span> <span class=n>USART_StopBits_1</span><span class=p>;</span>     <span class=c1>// 1位停止位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_Parity</span> <span class=o>=</span> <span class=n>USART_Parity_No</span><span class=p>;</span>        <span class=c1>// 无校验位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_HardwareFlowControl</span> <span class=o>=</span> <span class=n>USART_HardwareFlowControl_None</span><span class=p>;</span> <span class=c1>// 无硬件流控
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_Mode</span> <span class=o>=</span> <span class=n>USART_Mode_Rx</span> <span class=o>|</span> <span class=n>USART_Mode_Tx</span><span class=p>;</span> <span class=c1>// 收发模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>USART_Init</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>USART_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置NVIC中断控制器 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannel</span> <span class=o>=</span> <span class=n>USART1_IRQn</span><span class=p>;</span>   <span class=c1>// USART1中断通道
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelPreemptionPriority</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=c1>// 抢占优先级
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelSubPriority</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>  <span class=c1>// 子优先级
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelCmd</span> <span class=o>=</span> <span class=n>ENABLE</span><span class=p>;</span>     <span class=c1>// 使能中断通道
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>NVIC_Init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>NVIC_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 使能USART1接收中断 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART_ITConfig</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>USART_IT_RXNE</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开USART1 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART_Cmd</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART_SendString
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     发送字符串
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     str: 要发送的字符串
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      循环发送字符串中的每个字符，等待发送完成
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART_SendString</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=o>*</span><span class=n>str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART_SendData</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=o>*</span><span class=n>str</span><span class=o>++</span><span class=p>);</span>  <span class=c1>// 发送字符并指针后移
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=k>while</span><span class=p>(</span><span class=o>!</span><span class=nf>USART_GetFlagStatus</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>USART_FLAG_TXE</span><span class=p>));</span> <span class=c1>// 等待发送完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      main
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     主函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    int: 程序执行状态
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      USART1通信测试程序，每5秒发送&#34;hello world!&#34;
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* USART1初始化，波特率9600 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART1_Config</span><span class=p>(</span><span class=mi>9600</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 主循环 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 发送测试字符串 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART_SendString</span><span class=p>(</span><span class=s>&#34;hello world!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 延时5秒 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>delay_ms</span><span class=p>(</span><span class=mi>5000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div></div><footer class=article-footer><ul class=article-tag-list itemprop=keywords></ul></footer></div><nav id=article-nav data-aos=fade-up><div class="article-nav-link-wrap article-nav-link-left"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt=STM32定时器：从基础定时到PWM高级应用 class=lazyload>
+<a href=https://qrshxc.github.io/post/pwm/></a><div class=article-nav-caption>前一篇</div><h3 class=article-nav-title>STM32定时器：从基础定时到PWM高级应用</h3></div><div class="article-nav-link-wrap article-nav-link-right"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt=STM32蓝牙模块的原理与应用 class=lazyload>
+<a href=https://qrshxc.github.io/post/ble/></a><div class=article-nav-caption>后一篇</div><h3 class=article-nav-title>STM32蓝牙模块的原理与应用</h3></div></nav></article></section></div><footer id=footer><div style=width:100%;overflow:hidden><div class=footer-line></div></div><div id=footer-info><div><span class=icon-copyright></span>
+2020 -
+2025
+<span class="footer-info-sep rotate"></span>
+黄小冲</div><div>基于&nbsp;<a href=https://gohugo.io/ target=_blank>Hugo</a>&nbsp; Theme.<a href=https://github.com/D-Sketon/hugo-theme-reimu target=_blank>Reimu</a></div><div><span class=icon-brush>&nbsp;
+74.1k
+</span>&nbsp;|&nbsp;
+<span class=icon-coffee>&nbsp;
+02:45</span></div><div class=footer-beian><a target=_blank rel=noopener href=https://beian.miit.gov.cn>赣ICP备2025054780号-1</a></div><div><span class=icon-eye></span>
+<span id=busuanzi_container_site_pv>总访问量&nbsp;<span id=busuanzi_value_site_pv></span></span>
+&nbsp;|&nbsp;
+<span class=icon-user></span>
+<span id=busuanzi_container_site_uv>总访客量&nbsp;<span id=busuanzi_value_site_uv></span></span></div></div></footer><div class=sidebar-top><div class="sidebar-top-taichi rotate"></div><div class=arrow-up></div></div><div id=mask class=hide></div></div><nav id=mobile-nav><div class=sidebar-wrap><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><ul><li><a href=#1-通信的方式>1. 通信的方式</a></li></ul></li><li><a href=#2-串行通信分类>2. 串行通信分类</a></li><li><a href=#3串行接口意义>3.串行接口意义</a></li><li><a href=#4硬件接线说明>4.硬件接线说明</a></li><li><a href=#5串口通信参数>5.串口通信参数</a><ul><li><a href=#字符格式><strong>字符格式</strong></a></li><li><a href=#通信速率>通信速率</a></li></ul></li><li><a href=#6usart-的使用流程>6.USART 的使用流程</a><ul><li><a href=#程序设计>程序设计</a></li></ul></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div></div><div class=sidebar-btn-wrapper><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></nav></div><script src=https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js integrity=sha384-3gT/vsepWkfz/ff7PpWNUeMzeWoH3cDhm/A8jM7ouoAK0/fP/9bcHHR5kHq2nf+e crossorigin=anonymous></script><script src=https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js integrity=sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q crossorigin=anonymous></script><script src=/js/main.js integrity crossorigin=anonymous></script><script src=/js/aos.js integrity crossorigin=anonymous></script><script>var aosInit=()=>{AOS.init({duration:1e3,easing:"ease",once:!0,offset:50})};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",aosInit):aosInit()</script><script src=/js/pjax_main.js integrity crossorigin=anonymous data-pjax></script><script src=https://npm.webcache.cn/mouse-firework@0.1.0/dist/index.umd.js integrity=sha384-KM6i7tu43nYd6e0beIljxHMC5tZc58XBDu7pPA58w50h18Jsx7gLdimfS09RXlKv crossorigin=anonymous></script><script>if(window.firework){const e=JSON.parse('{"excludeelements":["a","button"],"particles":[{"colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"duration":[1200,1800],"easing":"easeOutExpo","move":["emit"],"number":20,"shape":"circle","shapeOptions":{"alpha":[0.3,0.5],"radius":[16,32]}},{"colors":["#ff0000"],"duration":[1200,1800],"easing":"easeOutExpo","move":["diffuse"],"number":1,"shape":"circle","shapeOptions":{"alpha":[0.2,0.5],"lineWidth":6,"radius":20}}]}');e.excludeElements=e.excludeelements,delete e.excludeelements,window.firework(e)}</script><div id=lazy-script><div><script data-pjax>window.REIMU_POST={author:"黄小冲",title:"STM32串口通信",url:"https://qrshxc.github.io/post/usart/",description:` 一、串口通信的原理与应用 1. 通信的方式 处理器与外部设备之间或者处理器与处理器之间通信的方式分两种：串行通信和并行通信。
+串行通信 传输原理：数据按位依次顺序传输（每一位占据固定的时间长度 MSB or LSB） 优点：占用引脚资源少、成本低、传输距离远 缺点：速度慢 应用场合：常用于工控、测量设备，以及部分通信设备 如 USB、COM 口
+`,cover:"https://qrshxc.github.io/images/banner.webp"}</script><script src=/js/insert_highlight.js integrity crossorigin=anonymous data-pjax></script><script type=module data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;
+
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script></div></div><script src=https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js async integrity=sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S crossorigin=anonymous></script><script>"serviceWorker"in navigator&&navigator.serviceWorker.getRegistrations().then(e=>{for(let t of e)t.unregister()})</script><script>const reimuCopyright=String.raw`
+   ______     ______     __     __    __     __  __    
+  /\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+  \ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+   \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+    \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                    
+  `;console.log(String.raw`%c ${reimuCopyright}`,"color: #ff5252;"),console.log("%c Theme.Reimu %c https://github.com/D-Sketon/hugo-theme-reimu ","color: white; background: #ff5252; padding:5px 0;","padding:4px;border:1px solid #ff5252;")</script></body></html>

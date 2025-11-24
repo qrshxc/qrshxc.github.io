@@ -1,0 +1,283 @@
+<!doctype html><html lang=zh-cn data-theme-mode=auto><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>STM32中断、NVIC、EXTI | 黄小冲</title><meta name=description content="记录成长与学习的足迹"><script>window.siteConfig=JSON.parse('{"anchor_icon":null,"clipboard":{"copyright":{"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！","count":50,"enable":false},"fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","success":"复制成功(*^▽^*)"},"code_block":{"expand":true},"icon_font":"4552607_0khxww3tj3q9","outdate":{"daysago":180,"enable":false,"message":"本文最后更新于 {time}，请注意文中内容可能已经发生变化。"}}')</script><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=preload as=style href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap" media=print onload='this.media="all"'><link rel=preload href=//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=stylesheet href=/css/loader.min.2ad0e9bbffb534e893c0ecefc44787a277cf851387e8ad9dccfbc3a5f0886dbe.css><meta property="og:type" content="website"><meta property="og:title" content="STM32中断、NVIC、EXTI | 黄小冲"><meta property="og:description" content="记录成长与学习的足迹"><meta property="og:url" content="https://qrshxc.github.io/post/interrupt/"><meta property="og:site_name" content="九思的博客"><meta property="og:image" content="/"><meta property="article:author" content="黄小冲"><meta property="article:published_time" content="2025-07-23T17:41:58+08:00"><meta property="article:modified_time" content="2025-07-23T17:41:58+08:00"><meta name=twitter:card content="summary"><meta name=twitter:image content="/"><link rel="shortcut icon" href=/favicon.ico><link rel=stylesheet href=/css/main.min.63684398a9584d95e2411a922ec8187281bbab44ffd348e26a806cae3370a598.css><link rel=preload as=style href=https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css onload='this.onload=null,this.rel="stylesheet"'><link rel=preload as=style href=https://npm.webcache.cn/katex@0.16.9/dist/katex.min.css onload='this.onload=null,this.rel="stylesheet"'><script src=https://npm.webcache.cn/pace-js@1.2.4/pace.min.js integrity=sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8 crossorigin=anonymous></script><link rel=stylesheet href=https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css></head><body><div id=loader><div class="loading-left-bg loading-bg"></div><div class="loading-right-bg loading-bg"></div><div class=spinner-box><div class=loading-taichi><svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" shape-rendering="geometricPrecision"><path d="M303.5 432a80 80 0 01-12 160 80 80 0 0112-160z" fill="#ff5252"/><path d="M512 65a447 447 0 010 894V929a417 417 0 000-834 417 417 0 000 834v30a447 447 0 010-894zm0 30A417 417 0 01929 512 208.5 208.5.0 01720.5 720.5V592a80 80 0 000-160 80 80 0 000 160V720.5A208.5 208.5.0 01512 512 208.5 208.5.0 00303.5 303.5 208.5 208.5.0 0095 512 417 417 0 01512 95z" fill="#ff5252"/></svg></div><div class=loading-word>正在努力打败拖延兽...</div></div></div></div><script>var time=null,startLoading=()=>{time=Date.now(),document.getElementById("loader").classList.remove("loading")},endLoading=()=>{time?Date.now()-time>500?(time=null,document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading")):(setTimeout(endLoading,500-(Date.now()-time)),time=null):(document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading"))};window.addEventListener("DOMContentLoaded",endLoading),document.getElementById("loader").addEventListener("click",endLoading)</script><div id=copy-tooltip style="pointer-events:none;opacity:0;transition:all .2s ease;position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,.5);padding:10px 15px;border-radius:10px"></div><div id=container><div id=wrap><div id=header-nav><nav id=main-nav><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/>首页</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/archives>归档</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/about>关于</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/friend>友链</a>
+</span><a id=main-nav-toggle class=nav-icon></a></nav><nav id=sub-nav></nav></div><header id=header><picture></picture><img fetchpriority=high src=/images/banner.webp alt=STM32中断、NVIC、EXTI><div id=header-outer><div id=header-title><a href=/ id=logo><h1 data-aos=slide-up>STM32中断、NVIC、EXTI</h1></a><h2 id=subtitle-wrap data-aos=slide-down></h2></div></div></header><div id=content class=sidebar-right><aside id=sidebar><div class="sidebar-wrapper wrap-sticky"><div class=sidebar-wrap data-aos=fade-up><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#轮询式系统>轮询式系统</a></li><li><a href=#前后台系统>前后台系统</a></li><li><a href=#多任务系统>多任务系统</a></li></ul><ul><li><a href=#1中断的概念>1.中断的概念</a></li><li><a href=#2-中断源分析>2. 中断源分析</a></li><li><a href=#3nvic-的概述>3.NVIC 的概述</a><ul><li></li></ul></li></ul><ul><li><a href=#基本概念>基本概念</a></li><li><a href=#基本原理>基本原理</a></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div><div class=sidebar-btn-wrapper style=position:static><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></div></div><div class=sidebar-widget></div></aside><section id=main><article class="h-entry article" itemprop=blogPost itemscope itemtype=https://schema.org/BlogPosting><div class=article-inner data-aos=fade-up><div class=article-meta><div class=article-date><span class=article-date-link data-aos=zoom-in><time datetime="2025-07-23 17:41:58 +0800 +0800" itemprop=datePublished>2025-07-23</time>
+<time style=display:none id=post-update-time>2025-07-23</time></span></div><div class=article-category></div></div><div class=hr-line></div><div class="e-content article-entry" itemprop=articleBody><h1 id=一如何提高程序的实时性><a class=header-anchor href=#%e4%b8%80%e5%a6%82%e4%bd%95%e6%8f%90%e9%ab%98%e7%a8%8b%e5%ba%8f%e7%9a%84%e5%ae%9e%e6%97%b6%e6%80%a7></a>一、如何提高程序的实时性</h1><h2 id=轮询式系统><a class=header-anchor href=#%e8%bd%ae%e8%af%a2%e5%bc%8f%e7%b3%bb%e7%bb%9f></a>轮询式系统</h2><p>指的是在程序运行时，首先对所有的硬件进行初始化，然后在主程序中写一个死循环，需要运行的功能按照顺序进行执行，轮询系统是一种简单可靠的方式，一般适用于在只需要按照顺序执行的并且没有外部事件的影响的情况下。程序的运行过程中出现如按键等需要外部检测的事件，轮询系统的实时响应能力变得很差。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//1. 对所有的硬件进行初始化（LED、BEEP、KEY......）
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//2.进入死循环
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>//点灯
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=c1>//警报
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=c1>//按键
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><hr><h2 id=前后台系统><a class=header-anchor href=#%e5%89%8d%e5%90%8e%e5%8f%b0%e7%b3%bb%e7%bb%9f></a>前后台系统</h2><p>相比于轮询系统，前后台系统增加中断的概念，如果外部事件发生，则在中断中进行处理，主程序在轮询系统中运行，中断被称为前台，主程序中的while(1)就称为后台。中断会终止后台程序的运行，然后跳转到对应的中断服务函数中去处理，处理完成后，在继续执行后台
+的程序。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>//不需要手动调用，当进程捕获到SIGINT 信号时，系统会暂停主程序的执行，来执行该函数
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>void</span> <span class=nf>signal_handler</span><span class=p>(</span><span class=kt>int</span> <span class=n>signum</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=c1>//处理动作
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//1.对中断进行注册
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>signal</span><span class=p>(</span><span class=n>SIGINT</span><span class=p>,</span><span class=n>signal_handler</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//执行动作，while(1)不允许退出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>如果使用前后台系统，可以极大程度的提高程序的实时响应能力，避免造成外部事件的缺失。</p><h2 id=多任务系统><a class=header-anchor href=#%e5%a4%9a%e4%bb%bb%e5%8a%a1%e7%b3%bb%e7%bb%9f></a>多任务系统</h2><p>相比于前后台系统，多任务系统的外部事件也是在中断中进行响应，但是外部事件的处理是任务中进行处理。任务具有优先级，优先级高的任务先处理，所以程序就会被分割为一个个的任务，任务是一个独立的死循环，并且不能返回，可以由操作系统进行任务的调度，程序段的实时响应能力又得到提升。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>//任务1
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>void</span> <span class=o>*</span> <span class=nf>task1</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>//任务2
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>void</span> <span class=o>*</span> <span class=nf>task2</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//1.对所有的硬件进行初始化
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//2.创建任务，并设置任务的属性(优先级、内存分配、时间片)
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//3.交给系统的调度器去执行
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span></code></pre></div><h1 id=二外部中断的概述><a class=header-anchor href=#%e4%ba%8c%e5%a4%96%e9%83%a8%e4%b8%ad%e6%96%ad%e7%9a%84%e6%a6%82%e8%bf%b0></a>二、外部中断的概述</h1><h2 id=1中断的概念><a class=header-anchor href=#1%e4%b8%ad%e6%96%ad%e7%9a%84%e6%a6%82%e5%bf%b5></a>1.中断的概念</h2><p>中断指的是CPU 来处理和响应外部发生的异常，中断也就意味着打断，比如打断正在做的事，然后去处理一个紧急的事，处理完成后在继续做刚才没做完的事。比如打游戏，女朋友来电话。注意：中断是允许嵌套的！</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121121729888.png alt=image-20251121121729888></p><h2 id=2-中断源分析><a class=header-anchor href=#2-%e4%b8%ad%e6%96%ad%e6%ba%90%e5%88%86%e6%9e%90></a>2. 中断源分析</h2><p>中断源指的是中断发生的源头，中断源在内核中已经定义好了，中断源也称为向量表，向量表在STM32F4 中文参考手册参考。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121121840759.png alt=image-20251121121840759></p><p>Cortex-M4 内核一共支持256 个中断，其中有16 个内核中断，240 个外部中断，只不过对于<strong>STM32F407 系列</strong>来说，只用到了一部分，包含了<strong>10 个内核中断</strong>（不可屏蔽中断，无法通过软件进行控制）、<strong>82 个外部中断</strong>（可屏蔽中断，可以通过软件进行控制）</p><h2 id=3nvic-的概述><a class=header-anchor href=#3nvic-%e7%9a%84%e6%a6%82%e8%bf%b0></a>3.NVIC 的概述</h2><p>NVIC 指的是嵌套向量中断控制器，属于内核中的外设，作用是管理所有的中断，比如中断的使能或失能、中断的优先级&mldr;..。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122040362.png alt=image-20251121122040362></p><p>不管是Cortex A 系列还是Cortex M 系列的内核内部均有NVIC，通过NVIC 来管理内核异常和外部异常。</p><h4 id=中断的使能与失能><a class=header-anchor href=#%e4%b8%ad%e6%96%ad%e7%9a%84%e4%bd%bf%e8%83%bd%e4%b8%8e%e5%a4%b1%e8%83%bd></a><strong>中断的使能与失能</strong></h4><p>NVIC 管理中断通道的打开与关闭，可以把NVIC 理解为所有中断的开关，想要使用中断发送中断请求，就必须提前打开中断的通道。关于NVIC 的使用都存储在一个结构体中，这个结构体和NVIC 的函数接口都定义在misc.c 和misc.h 中。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122158002.png alt=image-20251121122158002></p><p><img src=#ZgotmplZ alt=image-20251121122210213></p><h4 id=中断的优先级设置><a class=header-anchor href=#%e4%b8%ad%e6%96%ad%e7%9a%84%e4%bc%98%e5%85%88%e7%ba%a7%e8%ae%be%e7%bd%ae></a>中断的优先级设置</h4><p>NVIC 利用4bit 的优先级来管理所有的中断通道，STM32 中断的优先级分为两种：抢占式优先级（主优先级） + 响应式优先级（子优先级），每种都有16 个优先级（0~15），数字越小，优先级越高。</p><p>意义：如果同时发生多个中断请求，但是又不能同时处理，就根据中断请求的优先级来处理和响应中断。</p><p>抢占优先级（主优先级）：抢占优先级高的中断可以打断正在执行的抢占优先级低的中断！！！
+响应优先级（子优先级）：在同时发生多个中断的情况下，响应优先级高的中断可先执行！！！</p><p>(1) 抢占优先级高的中断可以打断正在执行的抢占优先级低的中断
+(2) 抢占优先级相同的中断同时发生，响应优先级高的中断先执行
+(3) 抢占优先级相同的多个中断发生，响应优先级高的中断不能打算响应优先级低的中断
+(4) 抢占优先级和响应优先级相同的多个中断同时发生，则按照向量表的中断编号来执行</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122351599.png alt=image-20251121122351599></p><p>为了方便用户管理和响应中断，NVIC 可以对中断优先级进行分组，这样用户可以方便配置</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122420363.png alt=image-20251121122420363></p><p>注意：该函数必须在主程序的入口进行调用，并且整个项目应该只调用一次，因为设置好优先级分组之后就不应该随意更改分组，否则中断管理比较混乱。</p><h1 id=三exti-外设的基本原理与应用><a class=header-anchor href=#%e4%b8%89exti-%e5%a4%96%e8%ae%be%e7%9a%84%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86%e4%b8%8e%e5%ba%94%e7%94%a8></a>三、EXTI 外设的基本原理与应用</h1><h2 id=基本概念><a class=header-anchor href=#%e5%9f%ba%e6%9c%ac%e6%a6%82%e5%bf%b5></a>基本概念</h2><p>EXTI 指的是外部中断/事件控制器，一共有23 个，每个都有一个内部的边沿检测器，可以检测上升沿或者下降沿，每根线都可以产生事件或者中断。</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122544430.png alt=image-20251121122544430></p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122605161.png alt=image-20251121122605161></p><p>注意：每个GPIO 引脚都可以配置为外部中断，但是和GPIO 相关的外部中断线一共有16 根，分别为EXTI0~EXTI15。</p><h2 id=基本原理><a class=header-anchor href=#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86></a>基本原理</h2><p>思考：STM32F407 系列有114 个GPIO 口，那如何和外部中断线进行关联？通过映射的方式</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251121122726069.png alt=image-20251121122726069></p><p>注意：STM32F407 所有IO 口都可以设置为外部中断，但是必须把GPIO 引脚配置为输入模式。</p><h1 id=四程序设计><a class=header-anchor href=#%e5%9b%9b%e7%a8%8b%e5%ba%8f%e8%ae%be%e8%ae%a1></a>四.程序设计</h1><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> * @file    main.c 
+</span></span></span><span class=line><span class=cl><span class=cm> * @author  qrshxc@163.com
+</span></span></span><span class=line><span class=cl><span class=cm> * @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @date    2025.7.23
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief   实现MCU的按键控制开发板的蜂鸣器和LED灯
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> **/</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stm32f4xx.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      delay
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     简单的延时函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     n: 延时计数值，值越大延时越长
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      使用空循环实现延时，精度不高
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>delay</span><span class=p>(</span><span class=n>u32</span> <span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=n>n</span><span class=o>--</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      EXTI0_IRQHandler
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     外部中断0中断服务函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      当PA0引脚检测到上升沿时触发此中断
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>EXTI0_IRQHandler</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 判断边沿检测器是否触发*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=nf>EXTI_GetITStatus</span><span class=p>(</span><span class=n>EXTI_Line0</span><span class=p>)</span> <span class=o>!=</span> <span class=n>RESET</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* LED灯状态翻转 */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>GPIO_ToggleBits</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=n>GPIO_Pin_9</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=cm>/* 蜂鸣器响 */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>GPIO_SetBits</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=n>GPIO_Pin_8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=cm>/* 延时一段时间 */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>delay</span><span class=p>(</span><span class=mi>5000000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        <span class=cm>/* 清除EXTI line 0中断标志，为下次触发做准备 */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>EXTI_ClearITPendingBit</span><span class=p>(</span><span class=n>EXTI_Line0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      Beep_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     蜂鸣器初始化配置
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置PF8引脚为推挽输出模式，用于控制蜂鸣器
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Beep_Config</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 定义GPIO外设的结构体变量 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span>  <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 使能GPIOF端口的时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOF</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 对PF8引脚进行配置 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span>   <span class=o>=</span> <span class=n>GPIO_Pin_8</span><span class=p>;</span>        <span class=c1>// 蜂鸣器控制引脚
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span>  <span class=o>=</span> <span class=n>GPIO_Mode_OUT</span><span class=p>;</span>     <span class=c1>// 输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>     <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_100MHz</span><span class=p>;</span> <span class=c1>// 高速模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span>  <span class=o>=</span> <span class=n>GPIO_PuPd_NOPULL</span><span class=p>;</span>  <span class=c1>// 无上下拉
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 蜂鸣器默认不响 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>GPIO_ResetBits</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=n>GPIO_Pin_8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      Led1_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     LED灯初始化配置
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置PF9引脚为推挽输出模式，用于控制LED灯
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Led1_Config</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 定义GPIO外设的结构体变量 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span>  <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 使能GPIOF端口的时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOF</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 对PF9引脚进行配置 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span>   <span class=o>=</span> <span class=n>GPIO_Pin_9</span><span class=p>;</span>        <span class=c1>// LED控制引脚
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span>  <span class=o>=</span> <span class=n>GPIO_Mode_OUT</span><span class=p>;</span>     <span class=c1>// 输出模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>     <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_100MHz</span><span class=p>;</span> <span class=c1>// 高速模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span>  <span class=o>=</span> <span class=n>GPIO_PuPd_NOPULL</span><span class=p>;</span>  <span class=c1>// 无上下拉
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* LED灯默认熄灭 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>GPIO_SetBits</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=n>GPIO_Pin_9</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      Key1_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     按键1初始化配置
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置PA0引脚为外部中断输入，上升沿触发
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Key1_Config</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 定义外设的结构体变量 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>EXTI_InitTypeDef</span>   <span class=n>EXTI_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitTypeDef</span>   <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>NVIC_InitTypeDef</span>   <span class=n>NVIC_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 启用GPIOA的时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOA</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 启用SYSCFG时钟 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>RCC_APB2PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_APB2Periph_SYSCFG</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 配置PA0引脚为输入模式 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_IN</span><span class=p>;</span>      <span class=c1>// 输入模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_NOPULL</span><span class=p>;</span>  <span class=c1>// 无上下拉
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_0</span><span class=p>;</span>         <span class=c1>// 按键引脚PA0
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* EXTI Line0 和 PA0 建立映射关系 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>SYSCFG_EXTILineConfig</span><span class=p>(</span><span class=n>EXTI_PortSourceGPIOA</span><span class=p>,</span> <span class=n>EXTI_PinSource0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 配置EXTI Line0外部中断线 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_Line</span>    <span class=o>=</span> <span class=n>EXTI_Line0</span><span class=p>;</span>           <span class=c1>// 边沿检测器编号，需要与引脚编号保持一致
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_Mode</span>    <span class=o>=</span> <span class=n>EXTI_Mode_Interrupt</span><span class=p>;</span>  <span class=c1>// 中断模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_Trigger</span> <span class=o>=</span> <span class=n>EXTI_Trigger_Rising</span><span class=p>;</span>  <span class=c1>// 上升沿触发
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_LineCmd</span> <span class=o>=</span> <span class=n>ENABLE</span><span class=p>;</span>               <span class=c1>// 使能外部中断线
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>EXTI_Init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>EXTI_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 配置NVIC中断控制器 */</span>
+</span></span><span class=line><span class=cl>    <span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannel</span> <span class=o>=</span> <span class=n>EXTI0_IRQn</span><span class=p>;</span>             <span class=c1>// 外部中断0通道
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelPreemptionPriority</span> <span class=o>=</span> <span class=mh>0x0F</span><span class=p>;</span> <span class=c1>// 抢占优先级
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelSubPriority</span> <span class=o>=</span> <span class=mh>0x0F</span><span class=p>;</span>        <span class=c1>// 子优先级
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelCmd</span> <span class=o>=</span> <span class=n>ENABLE</span><span class=p>;</span>              <span class=c1>// 使能中断通道
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>NVIC_Init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>NVIC_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      main
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     主函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      程序入口，初始化各外设后进入主循环
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 按键初始化 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Key1_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* LED灯初始化 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Led1_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 蜂鸣器初始化 */</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Beep_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=cm>/* 主循环 */</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=cm>/* 确保蜂鸣器不响（中断中会控制蜂鸣器响） */</span>
+</span></span><span class=line><span class=cl>        <span class=nf>GPIO_ResetBits</span><span class=p>(</span><span class=n>GPIOF</span><span class=p>,</span> <span class=n>GPIO_Pin_8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>注意:中断服务函数是不需要用户手动调用的,在满足中断触发条件(比如设置的下降沿触发),此时如果EXIT 捕获到一个下降沿,则会自动跳转到中断服务函数的地址下,然后去执行中断服务函数的内容。</p><p>注意：中断意味着程序出现异常，需要用户快速的解决异常，所以要求中断服务函数要精简，要高效，所以用户不应该在中断服务函数中调用太长的延时函数，也不应该处理比较复杂的功能，如果要处理比较复杂的代码，可以在中断服务函数中设置标志位，然后在后台判标志位并执行对应的代码段。</p></div><footer class=article-footer><ul class=article-tag-list itemprop=keywords></ul></footer></div><nav id=article-nav data-aos=fade-up><div class="article-nav-link-wrap article-nav-link-left"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt="STM32 蜂鸣器与触摸按键：原理与应用详解" class=lazyload>
+<a href=https://qrshxc.github.io/post/beepandkey/></a><div class=article-nav-caption>前一篇</div><h3 class=article-nav-title>STM32 蜂鸣器与触摸按键：原理与应用详解</h3></div><div class="article-nav-link-wrap article-nav-link-right"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt=STM32系统时钟与SysTick定时器 class=lazyload>
+<a href=https://qrshxc.github.io/post/timer/></a><div class=article-nav-caption>后一篇</div><h3 class=article-nav-title>STM32系统时钟与SysTick定时器</h3></div></nav></article></section></div><footer id=footer><div style=width:100%;overflow:hidden><div class=footer-line></div></div><div id=footer-info><div><span class=icon-copyright></span>
+2020 -
+2025
+<span class="footer-info-sep rotate"></span>
+黄小冲</div><div>基于&nbsp;<a href=https://gohugo.io/ target=_blank>Hugo</a>&nbsp; Theme.<a href=https://github.com/D-Sketon/hugo-theme-reimu target=_blank>Reimu</a></div><div><span class=icon-brush>&nbsp;
+74.1k
+</span>&nbsp;|&nbsp;
+<span class=icon-coffee>&nbsp;
+02:45</span></div><div class=footer-beian><a target=_blank rel=noopener href=https://beian.miit.gov.cn>赣ICP备2025054780号-1</a></div><div><span class=icon-eye></span>
+<span id=busuanzi_container_site_pv>总访问量&nbsp;<span id=busuanzi_value_site_pv></span></span>
+&nbsp;|&nbsp;
+<span class=icon-user></span>
+<span id=busuanzi_container_site_uv>总访客量&nbsp;<span id=busuanzi_value_site_uv></span></span></div></div></footer><div class=sidebar-top><div class="sidebar-top-taichi rotate"></div><div class=arrow-up></div></div><div id=mask class=hide></div></div><nav id=mobile-nav><div class=sidebar-wrap><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#轮询式系统>轮询式系统</a></li><li><a href=#前后台系统>前后台系统</a></li><li><a href=#多任务系统>多任务系统</a></li></ul><ul><li><a href=#1中断的概念>1.中断的概念</a></li><li><a href=#2-中断源分析>2. 中断源分析</a></li><li><a href=#3nvic-的概述>3.NVIC 的概述</a><ul><li></li></ul></li></ul><ul><li><a href=#基本概念>基本概念</a></li><li><a href=#基本原理>基本原理</a></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div></div><div class=sidebar-btn-wrapper><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></nav></div><script src=https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js integrity=sha384-3gT/vsepWkfz/ff7PpWNUeMzeWoH3cDhm/A8jM7ouoAK0/fP/9bcHHR5kHq2nf+e crossorigin=anonymous></script><script src=https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js integrity=sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q crossorigin=anonymous></script><script src=/js/main.js integrity crossorigin=anonymous></script><script src=/js/aos.js integrity crossorigin=anonymous></script><script>var aosInit=()=>{AOS.init({duration:1e3,easing:"ease",once:!0,offset:50})};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",aosInit):aosInit()</script><script src=/js/pjax_main.js integrity crossorigin=anonymous data-pjax></script><script src=https://npm.webcache.cn/mouse-firework@0.1.0/dist/index.umd.js integrity=sha384-KM6i7tu43nYd6e0beIljxHMC5tZc58XBDu7pPA58w50h18Jsx7gLdimfS09RXlKv crossorigin=anonymous></script><script>if(window.firework){const e=JSON.parse('{"excludeelements":["a","button"],"particles":[{"colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"duration":[1200,1800],"easing":"easeOutExpo","move":["emit"],"number":20,"shape":"circle","shapeOptions":{"alpha":[0.3,0.5],"radius":[16,32]}},{"colors":["#ff0000"],"duration":[1200,1800],"easing":"easeOutExpo","move":["diffuse"],"number":1,"shape":"circle","shapeOptions":{"alpha":[0.2,0.5],"lineWidth":6,"radius":20}}]}');e.excludeElements=e.excludeelements,delete e.excludeelements,window.firework(e)}</script><div id=lazy-script><div><script data-pjax>window.REIMU_POST={author:"黄小冲",title:"STM32中断、NVIC、EXTI",url:"https://qrshxc.github.io/post/interrupt/",description:` 一、如何提高程序的实时性 轮询式系统 指的是在程序运行时，首先对所有的硬件进行初始化，然后在主程序中写一个死循环，需要运行的功能按照顺序进行执行，轮询系统是一种简单可靠的方式，一般适用于在只需要按照顺序执行的并且没有外部事件的影响的情况下。程序的运行过程中出现如按键等需要外部检测的事件，轮询系统的实时响应能力变得很差。
+`,cover:"https://qrshxc.github.io/images/banner.webp"}</script><script src=/js/insert_highlight.js integrity crossorigin=anonymous data-pjax></script><script type=module data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;
+
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script></div></div><script src=https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js async integrity=sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S crossorigin=anonymous></script><script>"serviceWorker"in navigator&&navigator.serviceWorker.getRegistrations().then(e=>{for(let t of e)t.unregister()})</script><script>const reimuCopyright=String.raw`
+   ______     ______     __     __    __     __  __    
+  /\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+  \ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+   \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+    \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                    
+  `;console.log(String.raw`%c ${reimuCopyright}`,"color: #ff5252;"),console.log("%c Theme.Reimu %c https://github.com/D-Sketon/hugo-theme-reimu ","color: white; background: #ff5252; padding:5px 0;","padding:4px;border:1px solid #ff5252;")</script></body></html>

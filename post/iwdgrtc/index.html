@@ -1,0 +1,481 @@
+<!doctype html><html lang=zh-cn data-theme-mode=auto><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>STM32看门狗与RTC实时时钟完全指南 | 黄小冲</title><meta name=description content="记录成长与学习的足迹"><script>window.siteConfig=JSON.parse('{"anchor_icon":null,"clipboard":{"copyright":{"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！","count":50,"enable":false},"fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","success":"复制成功(*^▽^*)"},"code_block":{"expand":true},"icon_font":"4552607_0khxww3tj3q9","outdate":{"daysago":180,"enable":false,"message":"本文最后更新于 {time}，请注意文中内容可能已经发生变化。"}}')</script><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=preload as=style href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap"><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7cNoto%20Serif%20SC:400,400italic,700,700italic%7c&amp;display=swap" media=print onload='this.media="all"'><link rel=preload href=//at.alicdn.com/t/c/font_4552607_0khxww3tj3q9.woff2 as=font type=font/woff2 crossorigin=anonymous><link rel=stylesheet href=/css/loader.min.2ad0e9bbffb534e893c0ecefc44787a277cf851387e8ad9dccfbc3a5f0886dbe.css><meta property="og:type" content="website"><meta property="og:title" content="STM32看门狗与RTC实时时钟完全指南 | 黄小冲"><meta property="og:description" content="记录成长与学习的足迹"><meta property="og:url" content="https://qrshxc.github.io/post/iwdgrtc/"><meta property="og:site_name" content="九思的博客"><meta property="og:image" content="/"><meta property="article:author" content="黄小冲"><meta property="article:published_time" content="2025-07-30T17:41:58+08:00"><meta property="article:modified_time" content="2025-07-30T17:41:58+08:00"><meta name=twitter:card content="summary"><meta name=twitter:image content="/"><link rel="shortcut icon" href=/favicon.ico><link rel=stylesheet href=/css/main.min.63684398a9584d95e2411a922ec8187281bbab44ffd348e26a806cae3370a598.css><link rel=preload as=style href=https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css onload='this.onload=null,this.rel="stylesheet"'><link rel=preload as=style href=https://npm.webcache.cn/katex@0.16.9/dist/katex.min.css onload='this.onload=null,this.rel="stylesheet"'><script src=https://npm.webcache.cn/pace-js@1.2.4/pace.min.js integrity=sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8 crossorigin=anonymous></script><link rel=stylesheet href=https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css></head><body><div id=loader><div class="loading-left-bg loading-bg"></div><div class="loading-right-bg loading-bg"></div><div class=spinner-box><div class=loading-taichi><svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" shape-rendering="geometricPrecision"><path d="M303.5 432a80 80 0 01-12 160 80 80 0 0112-160z" fill="#ff5252"/><path d="M512 65a447 447 0 010 894V929a417 417 0 000-834 417 417 0 000 834v30a447 447 0 010-894zm0 30A417 417 0 01929 512 208.5 208.5.0 01720.5 720.5V592a80 80 0 000-160 80 80 0 000 160V720.5A208.5 208.5.0 01512 512 208.5 208.5.0 00303.5 303.5 208.5 208.5.0 0095 512 417 417 0 01512 95z" fill="#ff5252"/></svg></div><div class=loading-word>正在努力打败拖延兽...</div></div></div></div><script>var time=null,startLoading=()=>{time=Date.now(),document.getElementById("loader").classList.remove("loading")},endLoading=()=>{time?Date.now()-time>500?(time=null,document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading")):(setTimeout(endLoading,500-(Date.now()-time)),time=null):(document.body.style.overflow="auto",document.getElementById("loader").classList.add("loading"))};window.addEventListener("DOMContentLoaded",endLoading),document.getElementById("loader").addEventListener("click",endLoading)</script><div id=copy-tooltip style="pointer-events:none;opacity:0;transition:all .2s ease;position:fixed;top:50%;left:50%;z-index:999;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,.5);padding:10px 15px;border-radius:10px"></div><div id=container><div id=wrap><div id=header-nav><nav id=main-nav><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/>首页</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/archives>归档</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/about>关于</a>
+</span><span class=main-nav-link-wrap><div class='main-nav-icon icon rotate'>&#xe62b;</div><a class=main-nav-link href=/friend>友链</a>
+</span><a id=main-nav-toggle class=nav-icon></a></nav><nav id=sub-nav></nav></div><header id=header><picture></picture><img fetchpriority=high src=/images/banner.webp alt=STM32看门狗与RTC实时时钟完全指南><div id=header-outer><div id=header-title><a href=/ id=logo><h1 data-aos=slide-up>STM32看门狗与RTC实时时钟完全指南</h1></a><h2 id=subtitle-wrap data-aos=slide-down></h2></div></div></header><div id=content class=sidebar-right><aside id=sidebar><div class="sidebar-wrapper wrap-sticky"><div class=sidebar-wrap data-aos=fade-up><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#1分类说明>1.分类说明</a></li><li><a href=#2内部结构>2.内部结构</a></li><li><a href=#3程序设计>3.程序设计</a></li></ul><ul><li><a href=#1基本概念>1.基本概念</a></li><li><a href=#2框图分析>2.框图分析</a></li><li><a href=#3控制流程>3.控制流程</a></li><li><a href=#4程序设计>4.程序设计</a></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div><div class=sidebar-btn-wrapper style=position:static><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></div></div><div class=sidebar-widget></div></aside><section id=main><article class="h-entry article" itemprop=blogPost itemscope itemtype=https://schema.org/BlogPosting><div class=article-inner data-aos=fade-up><div class=article-meta><div class=article-date><span class=article-date-link data-aos=zoom-in><time datetime="2025-07-30 17:41:58 +0800 +0800" itemprop=datePublished>2025-07-30</time>
+<time style=display:none id=post-update-time>2025-07-30</time></span></div><div class=article-category></div></div><div class=hr-line></div><div class="e-content article-entry" itemprop=articleBody><h1 id=一看门狗外设的原理与应用><a class=header-anchor href=#%e4%b8%80%e7%9c%8b%e9%97%a8%e7%8b%97%e5%a4%96%e8%ae%be%e7%9a%84%e5%8e%9f%e7%90%86%e4%b8%8e%e5%ba%94%e7%94%a8></a>一、看门狗外设的原理与应用</h1><p>随着单片机的发展，单片机在家用电器、工业自动化、生产过程控制、智能仪器仪表等领域的应用越来越广泛。然而处于同一电力系统中的各种电气设备通过电或磁的联系彼此紧密相连，相互影响，由于运行方式的改变、故障、开关操作等引起的电磁振荡会波及很多电气设备。这对我们单片机系统的可靠性与安全性构成了极大的威胁。单片机测控系统必须长期稳定、可靠运行，否则将导致控制误差加大，严重时会使系统失灵，甚至造成巨大损失。因此单片机的抗干扰能力已经成为不容忽视的问题。</p><p>由于单片机在运行的过程经常会受到外部电磁场的干扰，就可能会出现程序“跑飞”，比如出现数据的缺失、导致寄存器中的数据发生变化、程序指针PC 指向非法地址&mldr;&mldr;..，为了提高程序的可靠性，就提供了看门狗外设，在程序出现由软件或者硬件导致的未知问题，利用
+看门狗外设对芯片进行复位，相当于重新运行程序。</p><p>如果程序运行没有任何问题，则可以”按时喂狗”，就不会让芯片复位，一旦程序出现问题导致无法喂狗，则看门狗会自动复位程序。</p><p>使用看门狗的目的：为了提供程序的可靠性，防止由软件或者硬件造成的问题的出现。如果想要了解看门狗的资源和特点，可以参考STM32F4 中文参考手册。</p><hr><h2 id=1分类说明><a class=header-anchor href=#1%e5%88%86%e7%b1%bb%e8%af%b4%e6%98%8e></a>1.分类说明</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122132401370.png alt=image-20251122132401370></p><p>STM32F4 系列的芯片提供的两个看门狗，一个叫做独立看门狗，一个叫做窗口看门狗。两个看门狗的使用流程差不多，但是相比于独立看门狗，窗口看门狗的要求更多。</p><h2 id=2内部结构><a class=header-anchor href=#2%e5%86%85%e9%83%a8%e7%bb%93%e6%9e%84></a>2.内部结构</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122132453127.png alt=image-20251122132453127></p><h2 id=3程序设计><a class=header-anchor href=#3%e7%a8%8b%e5%ba%8f%e8%ae%be%e8%ae%a1></a>3.程序设计</h2><p>如果出现芯片复位的情况，如何判断是用户手动完成复位还是由IWDG 看门狗复位??</p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122133019418.png alt=image-20251122133019418></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> * @file    IWDG.c 
+</span></span></span><span class=line><span class=cl><span class=cm> * @author  qrshxc@163.com
+</span></span></span><span class=line><span class=cl><span class=cm> * @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @date    2025.7.30
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief   独立看门狗(IWDG)应用示例
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> **/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stm32f4xx.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      delay_ms
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     毫秒级延时函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     nus: 延时的毫秒数
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      使用SysTick定时器实现精确毫秒延时
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>delay_ms</span><span class=p>(</span><span class=n>u32</span> <span class=n>nus</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>    <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>LOAD</span> <span class=o>=</span> <span class=n>nus</span> <span class=o>*</span> <span class=mi>21</span> <span class=o>*</span> <span class=mi>1000</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span> <span class=c1>// 计数次数，递减计数，0结束
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>VAL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>     <span class=c1>// 清除当前数值寄存器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>    <span class=c1>// 打开系统嘀嗒定时器，使用参考时钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=k>while</span> <span class=p>((</span><span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>&amp;</span> <span class=mh>0x00010000</span><span class=p>)</span><span class=o>==</span><span class=mi>0</span><span class=p>);</span> <span class=c1>// 等待计时完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>    <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART1_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     配置USART1串口
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     baud: 波特率
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置USART1为异步模式，8位数据位，1位停止位，无校验
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART1_Config</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>baud</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>USART_InitTypeDef</span> <span class=n>USART_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开GPIOA时钟 */</span>	
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOA</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开USART1时钟 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_APB2PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_APB2Periph_USART1</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>	
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置PA9和PA10的复用功能为USART1 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>GPIO_PinAFConfig</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_PinSource9</span><span class=p>,</span> <span class=n>GPIO_AF_USART1</span><span class=p>);</span>  <span class=c1>// PA9 - USART1_TX
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>GPIO_PinAFConfig</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_PinSource10</span><span class=p>,</span> <span class=n>GPIO_AF_USART1</span><span class=p>);</span> <span class=c1>// PA10 - USART1_RX
+</span></span></span><span class=line><span class=cl><span class=c1></span>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置GPIO的复用功能+初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_AF</span><span class=p>;</span>        <span class=c1>// 复用功能模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_100MHz</span><span class=p>;</span>  <span class=c1>// 高速模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>      <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>        <span class=c1>// 上拉模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_9</span> <span class=o>|</span> <span class=n>GPIO_Pin_10</span><span class=p>;</span> <span class=c1>// PA9(TX), PA10(RX)
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置USART1参数+初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_BaudRate</span> <span class=o>=</span> <span class=n>baud</span><span class=p>;</span>          <span class=c1>// 波特率
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_WordLength</span> <span class=o>=</span> <span class=n>USART_WordLength_8b</span><span class=p>;</span> <span class=c1>// 8位数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_StopBits</span> <span class=o>=</span> <span class=n>USART_StopBits_1</span><span class=p>;</span>     <span class=c1>// 1位停止位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_Parity</span> <span class=o>=</span> <span class=n>USART_Parity_No</span><span class=p>;</span>        <span class=c1>// 无校验位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_HardwareFlowControl</span> <span class=o>=</span> <span class=n>USART_HardwareFlowControl_None</span><span class=p>;</span> <span class=c1>// 无硬件流控
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_Mode</span> <span class=o>=</span> <span class=n>USART_Mode_Rx</span> <span class=o>|</span> <span class=n>USART_Mode_Tx</span><span class=p>;</span> <span class=c1>// 收发模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>USART_Init</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>USART_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开USART1 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART_Cmd</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART1_SendString
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     通过USART1发送字符串
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     str: 要发送的字符串
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      循环发送字符串中的每个字符，等待发送完成
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART1_SendString</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=o>*</span><span class=n>str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART_SendData</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=o>*</span><span class=n>str</span><span class=o>++</span><span class=p>);</span>  <span class=c1>// 发送字符并指针后移
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=k>while</span><span class=p>(</span><span class=o>!</span><span class=nf>USART_GetFlagStatus</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>USART_FLAG_TXE</span><span class=p>));</span> <span class=c1>// 等待发送完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      IWDOG_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     配置独立看门狗
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置IWDG超时时间为20ms
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>IWDOG_Config</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 使能对IWDG寄存器的写访问 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>IWDG_WriteAccessCmd</span><span class=p>(</span><span class=n>IWDG_WriteAccess_Enable</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置看门狗预分频值 */</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* LSI 32kHz / 32 = 1kHz, 计数周期 = 1ms */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>IWDG_SetPrescaler</span><span class=p>(</span><span class=n>IWDG_Prescaler_32</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置重载值: 20次 * 1ms = 20ms超时时间 */</span> 
+</span></span><span class=line><span class=cl>	<span class=nf>IWDG_SetReload</span><span class=p>(</span><span class=mi>20</span><span class=p>);</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl>	<span class=cm>/* 喂狗操作 - 重置计数器 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>IWDG_ReloadCounter</span><span class=p>();</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl>	<span class=cm>/* 使能独立看门狗 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>IWDG_Enable</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      main
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     主函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    int: 程序执行状态
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      独立看门狗应用演示，检测复位源并定期喂狗
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* USART1初始化，波特率9600 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART1_Config</span><span class=p>(</span><span class=mi>9600</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 检查是否IWDG复位 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=nf>RCC_GetFlagStatus</span><span class=p>(</span><span class=n>RCC_FLAG_IWDGRST</span><span class=p>)</span> <span class=o>!=</span> <span class=n>RESET</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 看门狗复位 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART1_SendString</span><span class=p>(</span><span class=s>&#34;System Reset by IWDG</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=nf>RCC_ClearFlag</span><span class=p>();</span>  <span class=c1>// 清除复位标志
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 用户复位 */</span> 
+</span></span><span class=line><span class=cl>		<span class=nf>USART1_SendString</span><span class=p>(</span><span class=s>&#34;System Reset by User</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=nf>RCC_ClearFlag</span><span class=p>();</span>  <span class=c1>// 清除复位标志
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置独立看门狗，超时时间20ms */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>IWDOG_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 主循环 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 喂狗操作 - 重置看门狗计数器 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>IWDG_ReloadCounter</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 延时19ms，确保在20ms超时前喂狗 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>delay_ms</span><span class=p>(</span><span class=mi>19</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><h1 id=二rtc-外设的原理与应用><a class=header-anchor href=#%e4%ba%8crtc-%e5%a4%96%e8%ae%be%e7%9a%84%e5%8e%9f%e7%90%86%e4%b8%8e%e5%ba%94%e7%94%a8></a>二、RTC 外设的原理与应用</h1><h2 id=1基本概念><a class=header-anchor href=#1%e5%9f%ba%e6%9c%ac%e6%a6%82%e5%bf%b5></a>1.基本概念</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122133052555.png alt=image-20251122133052555></p><h2 id=2框图分析><a class=header-anchor href=#2%e6%a1%86%e5%9b%be%e5%88%86%e6%9e%90></a>2.框图分析</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122133107320.png alt=image-20251122133107320></p><h2 id=3控制流程><a class=header-anchor href=#3%e6%8e%a7%e5%88%b6%e6%b5%81%e7%a8%8b></a>3.控制流程</h2><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122133122835.png alt=image-20251122133122835></p><p><img src=https://raw.githubusercontent.com/qrshxc/img/main/image-20251122133137576.png alt=image-20251122133137576></p><h2 id=4程序设计><a class=header-anchor href=#4%e7%a8%8b%e5%ba%8f%e8%ae%be%e8%ae%a1></a>4.程序设计</h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> * @file    RTC.c 
+</span></span></span><span class=line><span class=cl><span class=cm> * @author  qrshxc@163.com
+</span></span></span><span class=line><span class=cl><span class=cm> * @version V1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @date    2025.7.30
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief   RTC实时时钟显示日期和时间
+</span></span></span><span class=line><span class=cl><span class=cm> ******************************************************************************
+</span></span></span><span class=line><span class=cl><span class=cm> **/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;stm32f4xx.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* 全局变量定义 */</span>
+</span></span><span class=line><span class=cl><span class=n>__IO</span> <span class=kt>uint32_t</span> <span class=n>uwTimeDisplay</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>           <span class=c1>// 时间显示标志
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=n>RTC_InitTypeDef</span> <span class=n>RTC_InitStructure</span><span class=p>;</span>         <span class=c1>// RTC初始化结构体
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=n>RTC_TimeTypeDef</span> <span class=n>RTC_TimeStructure</span><span class=p>;</span>         <span class=c1>// RTC时间结构体
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=n>RTC_DateTypeDef</span> <span class=n>RTC_DateStructure</span><span class=p>;</span>         <span class=c1>// RTC日期结构体
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>uint8_t</span> <span class=n>aShowTime</span><span class=p>[</span><span class=mi>50</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>               <span class=c1>// 时间显示缓冲区
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kt>uint8_t</span> <span class=n>aShowDate</span><span class=p>[</span><span class=mi>50</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>               <span class=c1>// 日期显示缓冲区
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      delay_ms
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     毫秒级延时函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     nus: 延时的毫秒数
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      使用SysTick定时器实现精确毫秒延时
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>delay_ms</span><span class=p>(</span><span class=n>u32</span> <span class=n>nus</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>    <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>LOAD</span> <span class=o>=</span> <span class=n>nus</span> <span class=o>*</span> <span class=mi>21</span> <span class=o>*</span> <span class=mi>1000</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span> <span class=c1>// 计数次数，递减计数，0结束
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>VAL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>     <span class=c1>// 清除当前数值寄存器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>    <span class=c1>// 打开系统嘀嗒定时器，使用参考时钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=k>while</span> <span class=p>((</span><span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>&amp;</span> <span class=mh>0x00010000</span><span class=p>)</span><span class=o>==</span><span class=mi>0</span><span class=p>);</span> <span class=c1>// 等待计时完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>SysTick</span><span class=o>-&gt;</span><span class=n>CTRL</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>    <span class=c1>// 关闭系统嘀嗒定时器
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART1_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     配置USART1串口
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     baud: 波特率
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置USART1为异步模式，8位数据位，1位停止位，无校验
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART1_Config</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>baud</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>USART_InitTypeDef</span> <span class=n>USART_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>GPIO_InitTypeDef</span> <span class=n>GPIO_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开GPIOA时钟 */</span>	
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_AHB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_AHB1Periph_GPIOA</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开USART1时钟 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_APB2PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_APB2Periph_USART1</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>	
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置PA9和PA10的复用功能为USART1 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>GPIO_PinAFConfig</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_PinSource9</span><span class=p>,</span> <span class=n>GPIO_AF_USART1</span><span class=p>);</span>  <span class=c1>// PA9 - USART1_TX
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>GPIO_PinAFConfig</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=n>GPIO_PinSource10</span><span class=p>,</span> <span class=n>GPIO_AF_USART1</span><span class=p>);</span> <span class=c1>// PA10 - USART1_RX
+</span></span></span><span class=line><span class=cl><span class=c1></span>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置GPIO的复用功能+初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Mode</span> <span class=o>=</span> <span class=n>GPIO_Mode_AF</span><span class=p>;</span>        <span class=c1>// 复用功能模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Speed</span> <span class=o>=</span> <span class=n>GPIO_Speed_100MHz</span><span class=p>;</span>  <span class=c1>// 高速模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_OType</span> <span class=o>=</span> <span class=n>GPIO_OType_PP</span><span class=p>;</span>      <span class=c1>// 推挽输出
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_PuPd</span> <span class=o>=</span> <span class=n>GPIO_PuPd_UP</span><span class=p>;</span>        <span class=c1>// 上拉模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>GPIO_InitStructure</span><span class=p>.</span><span class=n>GPIO_Pin</span> <span class=o>=</span> <span class=n>GPIO_Pin_9</span> <span class=o>|</span> <span class=n>GPIO_Pin_10</span><span class=p>;</span> <span class=c1>// PA9(TX), PA10(RX)
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>GPIO_Init</span><span class=p>(</span><span class=n>GPIOA</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>GPIO_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置USART1参数+初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_BaudRate</span> <span class=o>=</span> <span class=n>baud</span><span class=p>;</span>          <span class=c1>// 波特率
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_WordLength</span> <span class=o>=</span> <span class=n>USART_WordLength_8b</span><span class=p>;</span> <span class=c1>// 8位数据位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_StopBits</span> <span class=o>=</span> <span class=n>USART_StopBits_1</span><span class=p>;</span>     <span class=c1>// 1位停止位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_Parity</span> <span class=o>=</span> <span class=n>USART_Parity_No</span><span class=p>;</span>        <span class=c1>// 无校验位
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_HardwareFlowControl</span> <span class=o>=</span> <span class=n>USART_HardwareFlowControl_None</span><span class=p>;</span> <span class=c1>// 无硬件流控
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>USART_InitStructure</span><span class=p>.</span><span class=n>USART_Mode</span> <span class=o>=</span> <span class=n>USART_Mode_Rx</span> <span class=o>|</span> <span class=n>USART_Mode_Tx</span><span class=p>;</span> <span class=c1>// 收发模式
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>USART_Init</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>USART_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开USART1 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART_Cmd</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      USART1_SendString
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     通过USART1发送字符串
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     str: 要发送的字符串
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      循环发送字符串中的每个字符，等待发送完成
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>USART1_SendString</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=o>*</span><span class=n>str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART_SendData</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=o>*</span><span class=n>str</span><span class=o>++</span><span class=p>);</span>  <span class=c1>// 发送字符并指针后移
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=k>while</span><span class=p>(</span><span class=o>!</span><span class=nf>USART_GetFlagStatus</span><span class=p>(</span><span class=n>USART1</span><span class=p>,</span> <span class=n>USART_FLAG_TXE</span><span class=p>));</span> <span class=c1>// 等待发送完成
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      RTC_WKUP_IRQHandler
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     RTC唤醒中断服务函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      处理RTC唤醒中断，设置时间显示标志
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>RTC_WKUP_IRQHandler</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span><span class=p>(</span><span class=nf>RTC_GetITStatus</span><span class=p>(</span><span class=n>RTC_IT_WUT</span><span class=p>)</span> <span class=o>!=</span> <span class=n>RESET</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>uwTimeDisplay</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>  <span class=c1>// 设置时间显示标志
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=nf>RTC_ClearITPendingBit</span><span class=p>(</span><span class=n>RTC_IT_WUT</span><span class=p>);</span>  <span class=c1>// 清除RTC中断标志
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=nf>EXTI_ClearITPendingBit</span><span class=p>(</span><span class=n>EXTI_Line22</span><span class=p>);</span> <span class=c1>// 清除外部中断标志
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      RTC_Config
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     配置RTC实时时钟
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      配置RTC使用LSE时钟源，设置初始时间和日期
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>RTC_Config</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitTypeDef</span> <span class=n>NVIC_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>EXTI_InitTypeDef</span> <span class=n>EXTI_InitStructure</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开PWR电源控制时钟 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_APB1PeriphClockCmd</span><span class=p>(</span><span class=n>RCC_APB1Periph_PWR</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 允许访问备份域寄存器 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>PWR_BackupAccessCmd</span><span class=p>(</span><span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置RTC唤醒中断 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannel</span> <span class=o>=</span> <span class=n>RTC_WKUP_IRQn</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelPreemptionPriority</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelSubPriority</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>NVIC_InitStructure</span><span class=p>.</span><span class=n>NVIC_IRQChannelCmd</span> <span class=o>=</span> <span class=n>ENABLE</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=nf>NVIC_Init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>NVIC_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置外部中断线22（RTC唤醒） */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>EXTI_ClearITPendingBit</span><span class=p>(</span><span class=n>EXTI_Line22</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_Line</span> <span class=o>=</span> <span class=n>EXTI_Line22</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_Mode</span> <span class=o>=</span> <span class=n>EXTI_Mode_Interrupt</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_Trigger</span> <span class=o>=</span> <span class=n>EXTI_Trigger_Rising</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>EXTI_InitStructure</span><span class=p>.</span><span class=n>EXTI_LineCmd</span> <span class=o>=</span> <span class=n>ENABLE</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=nf>EXTI_Init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>EXTI_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 打开LSE低速外部晶振（32.768kHz） */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_LSEConfig</span><span class=p>(</span><span class=n>RCC_LSE_ON</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 等待LSE振荡器稳定 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=nf>RCC_GetFlagStatus</span><span class=p>(</span><span class=n>RCC_FLAG_LSERDY</span><span class=p>)</span> <span class=o>==</span> <span class=n>RESET</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 选择LSE作为RTC时钟源 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_RTCCLKConfig</span><span class=p>(</span><span class=n>RCC_RTCCLKSource_LSE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 使能RTC时钟 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RCC_RTCCLKCmd</span><span class=p>(</span><span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 等待RTC寄存器同步 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_WaitForSynchro</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置初始时间：16:00:40 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>RTC_TimeStructure</span><span class=p>.</span><span class=n>RTC_Hours</span>   <span class=o>=</span> <span class=mh>0x16</span><span class=p>;</span>  <span class=c1>// 16小时
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_TimeStructure</span><span class=p>.</span><span class=n>RTC_Minutes</span> <span class=o>=</span> <span class=mh>0x00</span><span class=p>;</span>  <span class=c1>// 00分钟
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_TimeStructure</span><span class=p>.</span><span class=n>RTC_Seconds</span> <span class=o>=</span> <span class=mh>0x40</span><span class=p>;</span>  <span class=c1>// 40秒
+</span></span></span><span class=line><span class=cl><span class=c1></span>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置初始日期：2025年10月5日 星期日 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_Month</span> <span class=o>=</span> <span class=mh>0x07</span><span class=p>;</span>    <span class=c1>// 7月
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_Date</span> <span class=o>=</span> <span class=mh>0x30</span><span class=p>;</span>     <span class=c1>// 30日
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_Year</span> <span class=o>=</span> <span class=mh>0x25</span><span class=p>;</span>     <span class=c1>// 25年（2025）
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_WeekDay</span> <span class=o>=</span> <span class=mh>0x03</span><span class=p>;</span>  <span class=c1>// 星期三
+</span></span></span><span class=line><span class=cl><span class=c1></span>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置RTC日历参数 */</span>
+</span></span><span class=line><span class=cl>	<span class=n>RTC_InitStructure</span><span class=p>.</span><span class=n>RTC_AsynchPrediv</span> <span class=o>=</span> <span class=mh>0x7F</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>  <span class=c1>// 异步预分频值
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_InitStructure</span><span class=p>.</span><span class=n>RTC_SynchPrediv</span> <span class=o>=</span>  <span class=mh>0xFF</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>  <span class=c1>// 同步预分频值
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=n>RTC_InitStructure</span><span class=p>.</span><span class=n>RTC_HourFormat</span> <span class=o>=</span> <span class=n>RTC_HourFormat_24</span><span class=p>;</span> <span class=c1>// 24小时制
+</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=nf>RTC_Init</span><span class=p>(</span><span class=o>&amp;</span><span class=n>RTC_InitStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 设置RTC时间和日期（BCD格式） */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_SetTime</span><span class=p>(</span><span class=n>RTC_Format_BCD</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>RTC_TimeStructure</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_SetDate</span><span class=p>(</span><span class=n>RTC_Format_BCD</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>RTC_DateStructure</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 配置RTC唤醒时钟和计数器 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_WakeUpClockConfig</span><span class=p>(</span><span class=n>RTC_WakeUpClock_CK_SPRE_16bits</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_SetWakeUpCounter</span><span class=p>(</span><span class=mi>1</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>  <span class=c1>// 设置唤醒计数器
+</span></span></span><span class=line><span class=cl><span class=c1></span>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 使能RTC唤醒中断 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_ITConfig</span><span class=p>(</span><span class=n>RTC_IT_WUT</span><span class=p>,</span> <span class=n>ENABLE</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_ClearITPendingBit</span><span class=p>(</span><span class=n>RTC_IT_WUT</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 启动RTC唤醒功能 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_WakeUpCmd</span><span class=p>(</span><span class=n>ENABLE</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      Calendar_Show
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     显示日历信息
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    无
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      获取并显示当前时间和日期信息
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=k>static</span> <span class=kt>void</span> <span class=nf>Calendar_Show</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* 检查时间显示标志 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>uwTimeDisplay</span> <span class=o>==</span> <span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 获取当前时间（二进制格式） */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>RTC_GetTime</span><span class=p>(</span><span class=n>RTC_Format_BIN</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>RTC_TimeStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 获取当前日期（二进制格式） */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>RTC_GetDate</span><span class=p>(</span><span class=n>RTC_Format_BIN</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>RTC_DateStructure</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 格式化时间字符串：hh:mm:ss */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>sprintf</span><span class=p>((</span><span class=kt>char</span><span class=o>*</span><span class=p>)</span><span class=n>aShowTime</span><span class=p>,</span> <span class=s>&#34;%0.2d:%0.2d:%0.2d</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=n>RTC_TimeStructure</span><span class=p>.</span><span class=n>RTC_Hours</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>				<span class=n>RTC_TimeStructure</span><span class=p>.</span><span class=n>RTC_Minutes</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>				<span class=n>RTC_TimeStructure</span><span class=p>.</span><span class=n>RTC_Seconds</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 格式化日期字符串：yyyy-mm-dd */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>sprintf</span><span class=p>((</span><span class=kt>char</span><span class=o>*</span><span class=p>)</span><span class=n>aShowDate</span><span class=p>,</span> <span class=s>&#34;20%0.2d-%0.2d-%0.2d</span><span class=se>\r\n</span><span class=s>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>				<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_Year</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>				<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_Month</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl>				<span class=n>RTC_DateStructure</span><span class=p>.</span><span class=n>RTC_Date</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 通过串口发送时间和日期信息 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART1_SendString</span><span class=p>((</span><span class=kt>char</span><span class=o>*</span><span class=p>)</span><span class=n>aShowTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=nf>USART1_SendString</span><span class=p>((</span><span class=kt>char</span><span class=o>*</span><span class=p>)</span><span class=n>aShowDate</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 清除时间显示标志 */</span>
+</span></span><span class=line><span class=cl>		<span class=n>uwTimeDisplay</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/**
+</span></span></span><span class=line><span class=cl><span class=cm> * @name      main
+</span></span></span><span class=line><span class=cl><span class=cm> * @brief     主函数
+</span></span></span><span class=line><span class=cl><span class=cm> * @param     无
+</span></span></span><span class=line><span class=cl><span class=cm> * @return    int: 程序执行状态
+</span></span></span><span class=line><span class=cl><span class=cm> * @version   1.0
+</span></span></span><span class=line><span class=cl><span class=cm> * @note      RTC实时时钟主程序，周期性显示时间和日期
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=cm>/* USART1初始化，波特率9600 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>USART1_Config</span><span class=p>(</span><span class=mi>9600</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* RTC实时时钟初始化 */</span>
+</span></span><span class=line><span class=cl>	<span class=nf>RTC_Config</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=cm>/* 主循环 */</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=cm>/* 显示日历信息 */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>Calendar_Show</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>		
+</span></span><span class=line><span class=cl>		<span class=cm>/* 延时500ms */</span>
+</span></span><span class=line><span class=cl>		<span class=nf>delay_ms</span><span class=p>(</span><span class=mi>500</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div></div><footer class=article-footer><ul class=article-tag-list itemprop=keywords></ul></footer></div><nav id=article-nav data-aos=fade-up><div class="article-nav-link-wrap article-nav-link-left"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt="STM32模数转换器(ADC)原理与应用完全指南 -——光敏电阻" class=lazyload>
+<a href=https://qrshxc.github.io/post/light/></a><div class=article-nav-caption>前一篇</div><h3 class=article-nav-title>STM32模数转换器(ADC)原理与应用完全指南 -——光敏电阻</h3></div><div class="article-nav-link-wrap article-nav-link-right"><img data-src=https://d-sketon.top/img/_backwebp/bg1.webp data-sizes=auto alt=单总线协议的原理和DHT11的应用 class=lazyload>
+<a href=https://qrshxc.github.io/post/dht11/></a><div class=article-nav-caption>后一篇</div><h3 class=article-nav-title>单总线协议的原理和DHT11的应用</h3></div></nav></article></section></div><footer id=footer><div style=width:100%;overflow:hidden><div class=footer-line></div></div><div id=footer-info><div><span class=icon-copyright></span>
+2020 -
+2025
+<span class="footer-info-sep rotate"></span>
+黄小冲</div><div>基于&nbsp;<a href=https://gohugo.io/ target=_blank>Hugo</a>&nbsp; Theme.<a href=https://github.com/D-Sketon/hugo-theme-reimu target=_blank>Reimu</a></div><div><span class=icon-brush>&nbsp;
+74.1k
+</span>&nbsp;|&nbsp;
+<span class=icon-coffee>&nbsp;
+02:45</span></div><div class=footer-beian><a target=_blank rel=noopener href=https://beian.miit.gov.cn>赣ICP备2025054780号-1</a></div><div><span class=icon-eye></span>
+<span id=busuanzi_container_site_pv>总访问量&nbsp;<span id=busuanzi_value_site_pv></span></span>
+&nbsp;|&nbsp;
+<span class=icon-user></span>
+<span id=busuanzi_container_site_uv>总访客量&nbsp;<span id=busuanzi_value_site_uv></span></span></div></div></footer><div class=sidebar-top><div class="sidebar-top-taichi rotate"></div><div class=arrow-up></div></div><div id=mask class=hide></div></div><nav id=mobile-nav><div class=sidebar-wrap><div class=sidebar-toc-sidebar><div class=sidebar-toc><h3 class=toc-title>文章目录</h3><div class="sidebar-toc-wrapper toc-div-class"><nav id=TableOfContents><ul><li><a href=#1分类说明>1.分类说明</a></li><li><a href=#2内部结构>2.内部结构</a></li><li><a href=#3程序设计>3.程序设计</a></li></ul><ul><li><a href=#1基本概念>1.基本概念</a></li><li><a href=#2框图分析>2.框图分析</a></li><li><a href=#3控制流程>3.控制流程</a></li><li><a href=#4程序设计>4.程序设计</a></li></ul></nav></div></div></div><div class="sidebar-common-sidebar hidden"><div class=sidebar-author><img data-src=/avatar/avatar.webp data-sizes=auto alt=黄小冲 class=lazyload><div class=sidebar-author-name>黄小冲</div><div class=sidebar-description>记录成长与学习的足迹</div></div><div class=sidebar-state><div class=sidebar-state-article><div>文章</div><div class=sidebar-state-number>32</div></div><div class=sidebar-state-category><div>分类</div><div class=sidebar-state-number>0</div></div><div class=sidebar-state-tag><div>标签</div><div class=sidebar-state-number>0</div></div></div><div class=sidebar-social><div class="icon-github sidebar-social-icon"><a href=https://github.com/qrshxc itemprop=url target=_blank aria-label=github rel="noopener external nofollow noreferrer"></a></div><div class="icon-google sidebar-social-icon"><a href=https://plus.google.com/crees itemprop=url target=_blank aria-label=google rel="noopener external nofollow noreferrer"></a></div></div><div class=sidebar-menu><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/ aria-label=首页></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>首页</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/archives aria-label=归档></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>归档</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/about aria-label=关于></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>关于</div></div><div class=sidebar-menu-link-wrap><a class=sidebar-menu-link-dummy href=/friend aria-label=友链></a><div class='sidebar-menu-icon icon rotate'>&#xe62b;</div><div class=sidebar-menu-link>友链</div></div></div></div></div><div class=sidebar-btn-wrapper><div class="sidebar-toc-btn current"></div><div class=sidebar-common-btn></div></div></nav></div><script src=https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js integrity=sha384-3gT/vsepWkfz/ff7PpWNUeMzeWoH3cDhm/A8jM7ouoAK0/fP/9bcHHR5kHq2nf+e crossorigin=anonymous></script><script src=https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js integrity=sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q crossorigin=anonymous></script><script src=/js/main.js integrity crossorigin=anonymous></script><script src=/js/aos.js integrity crossorigin=anonymous></script><script>var aosInit=()=>{AOS.init({duration:1e3,easing:"ease",once:!0,offset:50})};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",aosInit):aosInit()</script><script src=/js/pjax_main.js integrity crossorigin=anonymous data-pjax></script><script src=https://npm.webcache.cn/mouse-firework@0.1.0/dist/index.umd.js integrity=sha384-KM6i7tu43nYd6e0beIljxHMC5tZc58XBDu7pPA58w50h18Jsx7gLdimfS09RXlKv crossorigin=anonymous></script><script>if(window.firework){const e=JSON.parse('{"excludeelements":["a","button"],"particles":[{"colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"duration":[1200,1800],"easing":"easeOutExpo","move":["emit"],"number":20,"shape":"circle","shapeOptions":{"alpha":[0.3,0.5],"radius":[16,32]}},{"colors":["#ff0000"],"duration":[1200,1800],"easing":"easeOutExpo","move":["diffuse"],"number":1,"shape":"circle","shapeOptions":{"alpha":[0.2,0.5],"lineWidth":6,"radius":20}}]}');e.excludeElements=e.excludeelements,delete e.excludeelements,window.firework(e)}</script><div id=lazy-script><div><script data-pjax>window.REIMU_POST={author:"黄小冲",title:"STM32看门狗与RTC实时时钟完全指南",url:"https://qrshxc.github.io/post/iwdgrtc/",description:` 一、看门狗外设的原理与应用 随着单片机的发展，单片机在家用电器、工业自动化、生产过程控制、智能仪器仪表等领域的应用越来越广泛。然而处于同一电力系统中的各种电气设备通过电或磁的联系彼此紧密相连，相互影响，由于运行方式的改变、故障、开关操作等引起的电磁振荡会波及很多电气设备。这对我们单片机系统的可靠性与安全性构成了极大的威胁。单片机测控系统必须长期稳定、可靠运行，否则将导致控制误差加大，严重时会使系统失灵，甚至造成巨大损失。因此单片机的抗干扰能力已经成为不容忽视的问题。
+`,cover:"https://qrshxc.github.io/images/banner.webp"}</script><script src=/js/insert_highlight.js integrity crossorigin=anonymous data-pjax></script><script type=module data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;
+
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8\u002boTJ7m3DfYEWX1fu1scuS4\u002bs")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script></div></div><script src=https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js async integrity=sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S crossorigin=anonymous></script><script>"serviceWorker"in navigator&&navigator.serviceWorker.getRegistrations().then(e=>{for(let t of e)t.unregister()})</script><script>const reimuCopyright=String.raw`
+   ______     ______     __     __    __     __  __    
+  /\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+  \ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+   \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+    \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                    
+  `;console.log(String.raw`%c ${reimuCopyright}`,"color: #ff5252;"),console.log("%c Theme.Reimu %c https://github.com/D-Sketon/hugo-theme-reimu ","color: white; background: #ff5252; padding:5px 0;","padding:4px;border:1px solid #ff5252;")</script></body></html>
